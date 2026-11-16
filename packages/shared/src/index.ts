@@ -10,8 +10,8 @@ export const TASK_TITLE_MAX_LENGTH = 120;
 
 const TaskTitleSchema = z
   .string({ required_error: 'Title is required' })
-  .trim()
   .min(1, 'Title cannot be empty')
+  .trim()
   .max(TASK_TITLE_MAX_LENGTH, `Title must be ${TASK_TITLE_MAX_LENGTH} characters or fewer`);
 
 export const TaskSchema = z.object({
