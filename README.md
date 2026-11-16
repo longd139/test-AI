@@ -75,7 +75,10 @@ Open your browser to:
 Run all test suites and type checks with standard npm commands:
 
 ```bash
-# Run unit and integration test suites
+# Run unit, integration, and component test suites:
+# - Shared: Zod validation schema contract tests
+# - API: Integration tests running against isolated test.db with safety assertions
+# - Web: Component tests with React Testing Library (E2E browser tests planned for Slot 2)
 npm test
 
 # Type check all TypeScript workspaces
@@ -93,11 +96,12 @@ npm run db:reset
 ## 5. Slot 1 Live Demonstrations
 
 Detailed step-by-step instructor run sheets are provided in:
-- [instructor/run-sheets/slot-01-demo-guide.md](file:///D:/FPT/project/Course4_ModernAISoftwareDeveloper_Materials1/SRC-GUIDE/instructor/run-sheets/slot-01-demo-guide.md)
+- [instructor/run-sheets/slot-01-demo-guide.md](instructor/run-sheets/slot-01-demo-guide.md)
 
 1. **Demo A (Slide 16) — Run the Application:**
    - Instructor clones/installs, runs `npm run dev`, shows task list, adds task, edits task, marks complete, and explains data flow from React to Express and Prisma SQLite.
 2. **Demo B (Slide 17) — Controlled AI Change:**
-   - Instructor prompts Claude Code to inspect `apps/api/src/routes/tasks.ts` and `packages/shared/src/schemas/task.ts`.
+   - Instructor prompts Claude Code to inspect `apps/api/src/app.ts`, `packages/shared/src/index.ts`, and `prisma/schema.prisma`.
    - Generates plan for a small controlled change (e.g. adding an optional description field or input trim rule).
    - Reviews git diff, runs tests, and proves the change works without unintended side effects.
+   - Restores clean state using disposable Git worktrees without touching active working files.

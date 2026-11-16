@@ -8,13 +8,20 @@ export const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Health check endpoint
+// Health check endpoint (Sanitized response with HTTP 503 on failure)
 app.get('/health', async (_req, res) => {
   try {
     await prisma.$queryRaw`SELECT 1`;
     res.json({ status: 'ok', database: 'connected', timestamp: new Date().toISOString() });
   } catch (err) {
-    res.status(503).json({ status: 'error', database: 'disconnected', error: String(err) });
+    // Retain internal diagnostics in server-side log only
+    console.error('[Health Check Failure] Database connectivity error:', err);
+    // Return fixed, sanitized error response to client
+    res.status(503).json({
+      status: 'error',
+      database: 'disconnected',
+      message: 'Database connection unavailable',
+    });
   }
 });
 
@@ -26,6 +33,7 @@ app.get('/api/tasks', async (_req, res) => {
     });
     res.json(tasks);
   } catch (error) {
+    console.error('[API Error] Failed to fetch tasks:', error);
     res.status(500).json({ error: 'Failed to fetch tasks' });
   }
 });
@@ -41,6 +49,7 @@ app.get('/api/tasks/:id', async (req, res) => {
     }
     res.json(task);
   } catch (error) {
+    console.error('[API Error] Failed to fetch task:', error);
     res.status(500).json({ error: 'Failed to fetch task' });
   }
 });
@@ -63,6 +72,7 @@ app.post('/api/tasks', async (req, res) => {
     });
     res.status(201).json(newTask);
   } catch (error) {
+    console.error('[API Error] Failed to create task:', error);
     res.status(500).json({ error: 'Failed to create task' });
   }
 });
@@ -91,6 +101,7 @@ app.patch('/api/tasks/:id', async (req, res) => {
     });
     res.json(updatedTask);
   } catch (error) {
+    console.error('[API Error] Failed to update task:', error);
     res.status(500).json({ error: 'Failed to update task' });
   }
 });
@@ -110,6 +121,7 @@ app.delete('/api/tasks/:id', async (req, res) => {
     });
     res.json({ message: 'Task deleted successfully', id: req.params.id });
   } catch (error) {
+    console.error('[API Error] Failed to delete task:', error);
     res.status(500).json({ error: 'Failed to delete task' });
   }
 });

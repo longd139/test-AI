@@ -1,0 +1,13 @@
+import { defineConfig } from 'vitest/config';
+
+export default defineConfig({
+  test: {
+    environment: 'node',
+    env: {
+      DATABASE_URL: 'file:./test.db',
+      NODE_ENV: 'test',
+      PORT: '3001',
+    },
+    setupFiles: ['./tests/setup.ts'],
+  },
+});

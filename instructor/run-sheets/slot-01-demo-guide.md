@@ -77,10 +77,33 @@ npm test
 - **Change Scenario:** Add an optional `description` field (max 500 characters) to tasks.  
   *(Note: This is a safe Slot 1 change that does NOT pre-implement Slot 2 features like Priority or Deadlines).*
 
+### Pre-Demo Safe Workspace Setup (Disposable Git Worktree):
+
+To ensure that live coding does not touch or dirty uncommitted work, lecture notes, or local configuration files in the instructor's main repository, execute Demo B inside an isolated, disposable Git worktree:
+
+**PowerShell (from repository root `D:\FPT\project\Course4_ModernAISoftwareDeveloper_Materials1\SRC-GUIDE`):**
+```powershell
+# Check target path before creating
+if (Test-Path "..\demo-worktree") { Remove-Item -Recurse -Force "..\demo-worktree" }
+git worktree add -b demo-slot-01 ..\demo-worktree checkpoint/slot-01-start
+cd ..\demo-worktree
+npm install
+npm run db:reset
+```
+
+*Bash equivalent:*
+```bash
+if [ -d "../demo-worktree" ]; then rm -rf "../demo-worktree"; fi
+git worktree add -b demo-slot-01 ../demo-worktree checkpoint/slot-01-start
+cd ../demo-worktree
+npm install
+npm run db:reset
+```
+
 ### Step-by-Step Execution:
 
 1. **Phase 1: Give Context & Inspect Before Edit:**
-   Open Claude Code CLI:
+   Open Claude Code CLI inside `..\demo-worktree`:
    ```powershell
    claude
    ```
@@ -99,14 +122,14 @@ npm test
      4. Add test case verifying description handling.
 
 2. **Phase 2: Review Scope & Approve Plan:**
-   - Point out to students that the agent identified the exact 3 files and did NOT suggest changing unrelated modules, adding auth, or touching UI components.
+   - Point out to students that the agent identified the exact 3 implementation files (`packages/shared/src/index.ts`, `prisma/schema.prisma`, `apps/api/src/app.ts`) plus test files, and did NOT suggest changing unrelated modules, adding auth, or touching UI components.
    - Approve the plan:
      ```text
      Proceed with steps 1, 2, 3 and add tests in packages/shared/tests/schemas.test.ts and apps/api/tests/api.test.ts. Do not touch apps/web yet.
      ```
 
 3. **Phase 3: Inspect Git Diff in Terminal:**
-   Exit Claude or open a secondary terminal:
+   Exit Claude or open a secondary terminal in `..\demo-worktree`:
    ```powershell
    git diff packages/shared/ apps/api/
    ```
@@ -119,10 +142,33 @@ npm test
    ```
    *Expected Observable Output:* All unit and integration tests pass cleanly.
 
-5. **Safe Reset to Clean Checkpoint:**
+5. **Safe Post-Demo Cleanup (Non-Destructive Worktree Teardown):**
+
+   > [!CAUTION]
+   > **NEVER run destructive commands in your active working tree:**
+   > Do NOT use `git checkout .` or `git clean -fd` in the main repository, as those commands can permanently destroy uncommitted work or untracked course files.
+
+   To clean up after the live demo, simply return to the main repository and remove the disposable worktree and throwaway branch:
+
+   **PowerShell:**
    ```powershell
-   # Discard experimental demo change and restore pristine checkpoint:
-   git checkout .
-   git clean -fd
+   # Return to main repository directory:
+   cd ..\SRC-GUIDE
+
+   # Safely remove disposable worktree and branch:
+   git worktree remove --force ..\demo-worktree
+   git branch -D demo-slot-01
+
+   # Re-verify main repository remains on clean checkpoint:
+   git status
+   npm run db:reset
+   ```
+
+   *Bash equivalent:*
+   ```bash
+   cd ../SRC-GUIDE
+   git worktree remove --force ../demo-worktree
+   git branch -D demo-slot-01
+   git status
    npm run db:reset
    ```
