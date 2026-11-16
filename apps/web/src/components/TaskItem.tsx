@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Task } from '@course4/shared';
+import { Task, TASK_TITLE_MAX_LENGTH } from '@course4/shared';
 import { Check, Edit2, Trash2, X } from 'lucide-react';
 
 interface TaskItemProps {
@@ -60,6 +60,8 @@ export const TaskItem: React.FC<TaskItemProps> = ({
                 onChange={(e) => setEditTitle(e.target.value)}
                 className="flex-1 px-2 py-1 text-sm border border-slate-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
                 autoFocus
+                maxLength={TASK_TITLE_MAX_LENGTH}
+                aria-label={`Edit title for ${task.title}`}
               />
               <button
                 onClick={handleSave}

@@ -6,9 +6,17 @@ import { z } from 'zod';
  * (No priority, no deadline, no user ownership in Slot 1)
  */
 
+export const TASK_TITLE_MAX_LENGTH = 120;
+
+const TaskTitleSchema = z
+  .string({ required_error: 'Title is required' })
+  .trim()
+  .min(1, 'Title cannot be empty')
+  .max(TASK_TITLE_MAX_LENGTH, `Title must be ${TASK_TITLE_MAX_LENGTH} characters or fewer`);
+
 export const TaskSchema = z.object({
   id: z.string().uuid(),
-  title: z.string().trim().min(1, 'Title cannot be empty'),
+  title: TaskTitleSchema,
   completed: z.boolean().default(false),
   createdAt: z.union([z.date(), z.string()]),
   updatedAt: z.union([z.date(), z.string()]),
@@ -21,10 +29,7 @@ export type Task = z.infer<typeof TaskSchema>;
  * Rejects empty or whitespace-only titles with a clean error message.
  */
 export const CreateTaskSchema = z.object({
-  title: z
-    .string({ required_error: 'Title is required' })
-    .trim()
-    .min(1, 'Title cannot be empty'),
+  title: TaskTitleSchema,
 });
 
 export type CreateTaskInput = z.infer<typeof CreateTaskSchema>;
@@ -34,7 +39,7 @@ export type CreateTaskInput = z.infer<typeof CreateTaskSchema>;
  */
 export const UpdateTaskSchema = z
   .object({
-    title: z.string().trim().min(1, 'Title cannot be empty').optional(),
+    title: TaskTitleSchema.optional(),
     completed: z.boolean().optional(),
   })
   .refine((data) => data.title !== undefined || data.completed !== undefined, {

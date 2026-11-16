@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { PlusCircle } from 'lucide-react';
+import { TASK_TITLE_MAX_LENGTH } from '@course4/shared';
 
 interface TaskFormProps {
   onAddTask: (title: string) => Promise<void>;
@@ -42,6 +43,7 @@ export const TaskForm: React.FC<TaskFormProps> = ({ onAddTask, isLoading }) => {
           disabled={isLoading}
           className="flex-1 px-4 py-2 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-slate-800 disabled:bg-slate-100"
           aria-label="New task title"
+          maxLength={TASK_TITLE_MAX_LENGTH}
         />
         <button
           type="submit"
@@ -52,6 +54,9 @@ export const TaskForm: React.FC<TaskFormProps> = ({ onAddTask, isLoading }) => {
           Add Task
         </button>
       </div>
+      <p className="mt-1 text-xs text-slate-500 text-right" aria-live="polite">
+        {title.length}/{TASK_TITLE_MAX_LENGTH}
+      </p>
       {validationError && (
         <p className="mt-2 text-sm text-red-600 font-medium" role="alert">
           {validationError}

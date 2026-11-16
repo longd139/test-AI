@@ -1,5 +1,9 @@
 import { describe, it, expect } from 'vitest';
-import { CreateTaskSchema, UpdateTaskSchema } from '../src/index.js';
+import {
+  CreateTaskSchema,
+  TASK_TITLE_MAX_LENGTH,
+  UpdateTaskSchema,
+} from '../src/index.js';
 
 describe('CreateTaskSchema', () => {
   it('accepts a valid title and trims whitespace', () => {
@@ -29,6 +33,14 @@ describe('CreateTaskSchema', () => {
   it('rejects missing title', () => {
     const result = CreateTaskSchema.safeParse({});
     expect(result.success).toBe(false);
+  });
+
+  it('rejects a title longer than the controlled 120-character limit', () => {
+    const result = CreateTaskSchema.safeParse({ title: 'x'.repeat(TASK_TITLE_MAX_LENGTH + 1) });
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.issues[0].message).toContain('120 characters or fewer');
+    }
   });
 });
 

@@ -17,6 +17,8 @@ describe('Task Manager Frontend App', () => {
 
     expect(screen.getByText('Task Manager')).toBeInTheDocument();
     expect(screen.getByPlaceholderText('What needs to be done?')).toBeInTheDocument();
+    expect(screen.getByPlaceholderText('What needs to be done?')).toHaveAttribute('maxlength', '120');
+    expect(screen.getByText('0/120')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /add task/i })).toBeInTheDocument();
 
     await waitFor(() => {

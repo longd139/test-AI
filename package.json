@@ -13,6 +13,10 @@
     "dev:web": "npm run dev -w @course4/web",
     "build": "npm run build -w @course4/shared && npm run build -w @course4/api && npm run build -w @course4/web",
     "test": "npm run test -w @course4/shared && npm run test -w @course4/api && npm run test -w @course4/web",
+    "pretest:e2e": "tsx e2e/prepare-db.ts",
+    "test:e2e": "playwright test",
+    "pretest:e2e:headed": "tsx e2e/prepare-db.ts",
+    "test:e2e:headed": "playwright test --headed",
     "pretypecheck": "npm run build -w @course4/shared",
     "typecheck": "npm run typecheck -w @course4/shared && npm run typecheck -w @course4/api && npm run typecheck -w @course4/web",
     "prelint": "npm run build -w @course4/shared",
@@ -23,6 +27,7 @@
     "db:reset": "tsx prisma/reset.ts"
   },
   "devDependencies": {
+    "@playwright/test": "1.65.1",
     "@prisma/client": "^6.4.0",
     "concurrently": "^9.1.2",
     "dotenv": "^16.4.7",

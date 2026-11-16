@@ -11,7 +11,7 @@
 ### Build & Verification
 ```bash
 # Clean install
-npm install
+npm ci
 
 # Database setup & reproducible seeding
 npx prisma generate
@@ -20,6 +20,9 @@ npm run db:seed
 
 # Run all test suites
 npm test
+
+# Run browser E2E tests against isolated e2e.db
+npm run test:e2e
 
 # Run type checking across workspaces
 npm run typecheck
@@ -60,13 +63,14 @@ npm run dev:web
 ## 3. Strict Educational Constraints & Quality Rules
 
 1. **Slot Boundary Enforcement:**
-   - **Do NOT pre-implement Slot 2 features:** No Task Priority, no Task Due Dates/Deadlines in Slot 1.
+   - **Slot 2 scope:** Task due dates remain a planning exercise; do not add them to the schema or UI without a separately approved implementation task.
    - **Do NOT implement authentication:** Slot 1 is single-user / team-shared workspace. No `X-User-Id` headers or auth middleware in Slot 1.
 2. **Inspect Before Edit:**
    - Always read existing files and schemas before editing.
    - Propose a minimal plan and list affected files before applying edits.
 3. **Test-Driven Discipline:**
    - Every schema change or endpoint change must have corresponding tests.
+   - Never change, weaken, skip, or delete tests merely to make a failing implementation pass. If a test appears incorrect, stop and explain why.
    - Run `npm test` and `npm run typecheck` to verify changes before marking work done.
 4. **Single Responsibility Diffs:**
    - Never reformat entire files or modify unrelated files during a targeted fix.

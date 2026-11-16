@@ -129,6 +129,12 @@ describe('Task Manager API Integration Tests', () => {
       const res = await request(app).post('/api/tasks').send({});
       expect(res.status).toBe(400);
     });
+
+    it('rejects titles longer than 120 characters with 400 Bad Request', async () => {
+      const res = await request(app).post('/api/tasks').send({ title: 'x'.repeat(121) });
+      expect(res.status).toBe(400);
+      expect(res.body.error).toContain('120 characters or fewer');
+    });
   });
 
   describe('PATCH /api/tasks/:id', () => {

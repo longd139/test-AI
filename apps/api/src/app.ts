@@ -6,7 +6,8 @@ import { prisma } from './db.js';
 export const app = express();
 
 app.use(cors());
-app.use(express.json());
+// Bound request parsing before validation to reduce oversized-input resource exhaustion.
+app.use(express.json({ limit: '16kb' }));
 
 // Health check endpoint (Sanitized response with HTTP 503 on failure)
 app.get('/health', async (_req, res) => {
