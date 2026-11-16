@@ -125,6 +125,17 @@ describe('Task Manager API Integration Tests', () => {
       expect(res.body.error).toBe('Title cannot be empty');
     });
 
+    it('preserves the database when whitespace-only creation is rejected', async () => {
+      const countBefore = await prisma.task.count();
+      const res = await request(app).post('/api/tasks').send({ title: '     ' });
+      const countAfter = await prisma.task.count();
+
+      expect({ status: res.status, rowDelta: countAfter - countBefore }).toEqual({
+        status: 400,
+        rowDelta: 0,
+      });
+    });
+
     it('rejects missing title property with 400 Bad Request', async () => {
       const res = await request(app).post('/api/tasks').send({});
       expect(res.status).toBe(400);
