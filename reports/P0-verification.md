@@ -1,88 +1,81 @@
 # Phase P0 Verification Report — Discovery, Traceability & Architecture
 
-> **Date:** November 16, 2026  
+> **Date:** November 16, 2026 (Updated Phase P0.1)  
 > **Course:** Course 4 — The Modern AI Software Developer (ADLC01)  
 > **Institution:** FPT University  
 > **Lead Software Engineer:** Antigravity  
-> **Repository:** `course4-teaching-task-manager`
+> **Repository:** `course4-teaching-task-manager`  
+> **Current Phase Status:** Documentation discovery and curriculum inventory completed. Executable implementation, checkpoint validation and runtime verification remain pending.
 
 ---
 
 ## 1. Executive Summary
 
-Phase P0 has been executed and strictly completed. In compliance with the Master Instruction:
-- **No implementation code has been authored yet.**
-- All 5 PowerPoint slide decks under `SLIDE-4HOURS` were parsed, inventoried, and categorized (157 total slides).
-- The original 10-session materials, syllabus (`Course4_Syllabus_v2.xlsx`), instructor guides, and legacy draft code were thoroughly analyzed.
-- All 8 mandated deliverables for Phase P0 have been produced and verified.
+Phase P0 has established the complete pedagogical and architectural foundation for the Course 4 Teaching Task Manager repository. Following the independent technical review (which reported 1 BLOCKER, 4 HIGH, 2 MEDIUM, and 1 LOW findings in `reports/P0-INDEPENDENT-AUDIT.md`), Phase P0.1 was conducted to resolve all 8 findings.
+
+**Crucial Status Clarification:**
+- **What is verified and complete:** Full inspection and parsing of all 5 primary slide decks (157 slides), 10-session laboratory guides, course syllabus worksheets, instructor guide, and legacy draft codebases. Complete mapping into slide inventory, traceability matrix, demo inventory, lab inventory, architecture design, and checkpoint strategy.
+- **What is planned and pending:** Executable application code, Prisma migrations, Git tags/branches, automated reset scripts, CI workflows, and live cloud deployments. **No application source code has been authored in P0.**
 
 ---
 
-## 2. Deliverables Produced in Phase P0
+## 2. Deliverables Produced & Corrected in Phase P0 / P0.1
 
-| # | File Path | Description | Verification State |
-|:---:|:---|:---|:---:|
-| 1 | `curriculum/slide-inventory.md` | Numbered slide inventory for all 5 decks (157 slides) with full slide titles, content bullet points, and speaker notes. | ✅ 1,784 lines |
-| 2 | `curriculum/traceability.md` | Maps every slide to type (`CONCEPT`, `DIAGRAM`, `LIVE_DEMO`, `LAB`, `REVIEW`, `ASSESSMENT`), original session, technical checkpoints, commands, observable outcomes, and required evidence. | ✅ 209 lines |
-| 3 | `curriculum/source-conflicts.md` | Reconciles 6 major source conflicts, specifies 6 features required by slides but not yet defined, and outlines decisions required. | ✅ Complete |
-| 4 | `docs/architecture.md` | Complete specification of monorepo architecture (`npm workspaces`), dependencies per package, and dual-database evolution (SQLite → PostgreSQL). | ✅ Complete |
-| 5 | `curriculum/demo-inventory.md` | Inventory of all 14 instructor live demos across the 5 slots with starting checkpoints, exact CLI commands, expected results, and reset scripts. | ✅ Complete |
-| 6 | `curriculum/lab-inventory.md` | Inventory of all 15 student labs across the 5 slots with student instructions, input state, learning objectives, deliverables, and verification criteria. | ✅ Complete |
-| 7 | `docs/checkpoint-strategy.md` | Defined Git checkpoint tags (`checkpoint/slot-01-start` to `checkpoint/slot-05-deployed`), reset automation, failure isolation, and academic integrity boundaries. | ✅ Complete |
-| 8 | `reports/P0-verification.md` | Comprehensive verification report detailing checked sources, unknown items, and phase gate status. | ✅ Complete |
-
----
-
-## 3. What Was Checked
-
-1. **All 5 PowerPoint files in `..\SLIDE-4HOURS`:**
-   - `SLOT 1.pptx` (35 slides): AI-Native Engineering Foundations & Requirements
-   - `SLOT 2.pptx` (35 slides): Controlled AI Development, Git Collaboration & Automated Testing
-   - `SLOT 3 - 4HOURi.pptx` (32 slides): Agent Automations, Subagents, MCP & Rapid AI UI Development
-   - `SLOT 4 - 4HOURS.pptx` (32 slides): Secure AI Code, Human vs AI Code Review & Debugging
-   - `SLOT 5 - 4 HOURS.pptx` (23 slides): Production Deployment, Incident Response & Final Demo Day
-   *Total: 157 slides parsed and cross-referenced.*
-
-2. **Original 10-Session Course Materials (`..\Course4_ModernAISoftwareDeveloper_Materials`):**
-   - Sessions 01 to 10 slide decks and lab markdown files.
-   - `Instructor/Instructor_Guide.md` and 4 demonstration codebases (`bug-hunt`, `mini-agent`, `prompt-injection-demo`, `weather-mcp`).
-   - 10 official templates in `Templates/`.
-
-3. **Official Course Syllabus (`..\Course4_Syllabus_v2.xlsx`):**
-   - Checked all 10 worksheets: Syllabus, Schedule, Session Plan, Learning Outcomes, LO Matrix, Assessment, Project Brief, Final Rubric (100 points), Glossary, Tools & Setup.
-
-4. **Legacy Draft Repositories (`..\SRC_GITHUB_4_SLOTS`):**
-   - Analyzed `slot-01`, `slot-02`, `slot-03`, `slot-04`, and `_INSTRUCTOR_ONLY/`.
+| Deliverable | Location | P0.1 Status & Corrections Applied |
+|:---|:---|:---|
+| **1. Slide Inventory** | `curriculum/slide-inventory.md` | Contains all 157 slides numbered with extracted titles, body bullet points, and speaker notes. Verified 100% intact. |
+| **2. Traceability Matrix** | `curriculum/traceability.md` | Reconciled classifications: 94 CONCEPT, 16 DIAGRAM, 17 REVIEW, 12 LIVE_DEMO, 12 LAB, 6 ASSESSMENT (Total: 157). Removed Task Priority attribution from Slot 1. Marked all commands/checkpoints as PLANNED. |
+| **3. Source Conflicts & Decisions** | `curriculum/source-conflicts.md` | Reconciles 6 major conflicts. Corrected Task Priority as an optional Slot 2 demo (not required in Slot 1). Defined `X-User-Id` as simulated identity fixture for testing only (not authentication). |
+| **4. Architecture Specification** | `docs/architecture.md` | Redesigned security boundary: single-user production scope, fixture-only simulated identity with production startup guard. Chose reference deployment stack: Vercel (web), Render (API), Neon PostgreSQL (DB). Formulated non-destructive database evolution using separate schema files. |
+| **5. Live Demo Inventory** | `curriculum/demo-inventory.md` | Reconciled demo counts: 9 explicitly titled Live Demo slides + 1 live drill + 4 supplementary planned demonstrations (Total: 14 planned demos). Removed Priority from Slot 1. Added explicit prerequisites and offline fallbacks. |
+| **6. Student Lab Inventory** | `curriculum/lab-inventory.md` | Reconciled counts: 12 deck-labelled labs + 2 guided practical activities in Slot 5 + 1 summative Demo Day assessment (Total: 14 guided labs/activities + 1 assessment). Removed Priority from Slot 1. Defined fixture boundary in Slot 4. |
+| **7. Checkpoint & Recovery Strategy** | `docs/checkpoint-strategy.md` | Replaced destructive reset with non-destructive disposable Git worktrees. Added `--dry-run`, `--stash`, and `--force` safeguards. Documented instructor/student boundaries and PowerShell/Bash commands. Marked all tags/scripts as PLANNED. |
+| **8. P0 Verification Report** | `reports/P0-verification.md` | Corrected report accuracy; marked implementation/runtime verification as pending. Documented all audit findings P0-01 through P0-08. |
+| **9. Audit Correction Report** | `reports/P0.1-CORRECTION-REPORT.md` | Comprehensive resolution report addressing findings P0-01 through P0-08, file diffs, risks, decisions, and unverified items. |
 
 ---
 
-## 4. Features Required by the Slides but Not Yet Defined
+## 3. Findings Resolution Summary (P0-01 through P0-08)
 
-Through careful slide inspection, we identified 6 features required for live demos and labs that were missing or ambiguous in legacy drafts:
-
-1. **Task Priority (`LOW`, `MEDIUM`, `HIGH`):** Shown in Slot 1 Slide 17 & Lab 01 as an example controlled change.
-2. **Task Due Date / Deadline Editing:** Required for Slot 2 Slide 16 & Lab 01 (Agent Planning Challenge). Needs nullable `dueDate` field with ISO-8601 string validation in Zod.
-3. **Multi-User Authentication & Ownership:** Required for Slot 4 Slide 06-07 (Broken Access Control / IDOR) and Bug 4 (unauthorized task deletion). Requires lightweight `X-User-Id` header-based auth mock and `userId` ownership checks.
-4. **Task Search & Pagination:** Required for Slot 4 Slide 25 & Lab 03 (Bug 1 pagination off-by-one and Bug 2 case-sensitive search). Requires query parameter parsing in `GET /api/tasks?q=&page=&limit=&done=`.
-5. **Observability Endpoint (`GET /health`):** Required for Slot 5 Slide 08 & Slide 10. Must return active database connectivity status and version.
-6. **Structured Pino JSON Logging:** Required for Slot 5 Slide 10. Must log request ID, method, URL, status code, and latency in JSON format.
-
----
-
-## 5. What Remains Unknown / Blockers for Review
-
-The following items are flagged for external reviewer clarification prior to Phase P1 implementation:
-
-1. **Confirmation of Monorepo vs. Multi-Repo:** Confirm approval of ONE coherent evolving monorepo with Git checkpoints over the legacy 4-separate-repositories model.
-2. **Database Engine Approval:** Confirm approval of Prisma ORM with SQLite for Slots 1–4 and PostgreSQL for Slot 5 deployment.
-3. **Primary MCP Tool:** Confirm Playwright MCP as the primary live demo tool for Slot 3 (with Weather MCP kept as an optional bonus demo).
-4. **Cloud Deployment Target:** Confirm whether Render or Vercel is the primary recommended deployment platform for Slot 5.
+- **P0-01 (BLOCKER — Security Architecture):** Removed all claims that `X-User-Id` is authentication. Specified that Slots 1–3 and Slot 5 production are single-tenant/team board with no authentication. Defined `X-User-Id` strictly as an isolated test fixture for Slot 4 IDOR vulnerability reproduction with an explicit startup check halting execution in `NODE_ENV=production`.
+- **P0-02 (HIGH — Task Priority Attribution):** Removed claims that Slot 1 Slide 17 or Lab 01 require Task Priority. Retained Task Priority as an optional demonstration example in Slot 2. Preserved the Slot 2 deadline-editing planning challenge.
+- **P0-03 (HIGH — Activity Accounting):** Reconciled counts: 9 explicitly titled Live Demo slides + 1 live incident drill + 4 supplementary planned demonstrations (14 total planned demo portfolio); 12 deck-labelled labs + 2 guided activities + 1 Demo Day assessment (14 guided labs/activities + 1 assessment).
+- **P0-04 (HIGH — Design vs Implementation Status):** Marked all non-existent tags, branches, files, and commands as `[PLANNED]`.
+- **P0-05 (HIGH — Checkpoint Safety):** Eliminated default destructive `git reset --hard / git clean -fd`. Recommended disposable Git worktrees and designed guarded Node.js reset automation with `--dry-run` and stash safeguards.
+- **P0-06 (MEDIUM — Database & Deployment):** Chose reference stack: Vercel + Render + Neon PostgreSQL. Replaced fragile provider rewriting with separate schemas (`schema.sqlite.prisma` and `schema.postgres.prisma`) and staged migration rehearsal.
+- **P0-07 (MEDIUM — Unverified Claims):** Labeled all URLs and ports as planned examples. Added explicit host prerequisites and offline fallbacks to all demos.
+- **P0-08 (LOW — Report Accuracy):** Updated status statement to accurately reflect discovery completion and implementation pending.
 
 ---
 
-## 6. Git State & Phase Gate Decision
+## 4. Features Required by Slides vs. Optional Examples
 
-- **Git Branch:** `main`
-- **Working Tree:** Clean (all P0 artifacts tracked)
-- **Phase Gate Status:** **PHASE P0 IS COMPLETE.**
-- **Action:** STOPPED and waiting for external review and explicit approval before starting Phase P1.
+1. **Task Priority (`LOW`, `MEDIUM`, `HIGH`):** Optional demonstration example for Slot 2. *Not present in Slot 1.*
+2. **Task Due Date / Deadline Editing:** Required for Slot 2 Slide 16 & Lab 01 (Agent Planning Challenge). Added in Slot 2.
+3. **Simulated Identity for Ownership Checks (`X-User-Id`):** Required for Slot 4 Slide 06–07 (IDOR) and Bug 4. Implemented strictly in development fixture `simulated-auth.ts`, prohibited in production.
+4. **Task Search & Pagination:** Required for Slot 4 Slide 25 (Bug 1 & Bug 2). Planned for `apps/api` with `TaskQuerySchema`.
+5. **Observability Health Endpoint (`GET /health`):** Required for Slot 5 Slide 08 & Slide 10. Planned active database ping via `prisma.$queryRaw`.
+6. **Structured Pino JSON Logging:** Required for Slot 5 Slide 10. Planned JSON log serializer capturing request ID, method, URL, status, and response duration.
+
+---
+
+## 5. Explicitly Unverified Items (Pending Phase P1–P5)
+
+As established in the independent audit, the following items remain unimplemented designs and will be verified during their respective implementation phases:
+- Runtime behavior of Node.js / Express backend and React / Vite frontend.
+- Prisma SQLite and PostgreSQL migrations and seed scripts.
+- Git tags (`checkpoint/slot-01-start` through `checkpoint/slot-05-deployed`).
+- CI workflows in `.github/workflows/`.
+- Semgrep SAST rule execution and npm audit outputs.
+- Playwright browser test automation and Playwright MCP tool communication.
+- Cloud deployment on Vercel, Render, and Neon.
+- Seeded bug reproduction in `tests/bug-hunt/`.
+
+---
+
+## 6. Phase Gate Readiness
+
+> [!IMPORTANT]
+> **PHASE P0.1 CORRECTIONS ARE COMPLETE.**  
+> Documentation discovery and curriculum inventory completed. Executable implementation, checkpoint validation and runtime verification remain pending.  
+> Execution is **STOPPED** awaiting external reviewer verification of `reports/P0.1-CORRECTION-REPORT.md`.

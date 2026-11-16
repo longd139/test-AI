@@ -1,275 +1,325 @@
 # Master Instructor Demo Inventory — Course 4
 
-> Complete specification for every instructor live demo across all five 4-hour slots.
+> **Status:** APPROVED IMPLEMENTATION DESIGN (PHASE P0.1)  
+> All checkpoints, files, commands, and expected outputs below are **PLANNED** for implementation in Phases P1–P5. No executable code or tags currently exist.
 
-## Slot 1: AI-Native Engineering Foundations & Requirements
+---
+
+## 1. Demo Categorization & Slide Deck Reconciliation
+
+An independent technical audit of the five PowerPoint decks in `SLIDE-4HOURS` established:
+- **9 Explicitly Titled "Live Demo" Slides:**
+  - `SLOT 1` Slide 16: "LIVE DEMO: Run the Application"
+  - `SLOT 1` Slide 17: "LIVE DEMO: Controlled AI Change"
+  - `SLOT 2` Slide 16: "Live Demo 1: Controlled Feature Change"
+  - `SLOT 2` Slide 25: "Live Demo 2: From Failing Test to Fix"
+  - `SLOT 2` Slide 28: "Live Demo: GitHub Actions"
+  - `SLOT 3` Slide 16: "Playwright MCP" (explicitly titled "INSTRUCTOR LIVE DEMO")
+  - `SLOT 4` Slide 13: "Live Demo: Security Investigation"
+  - `SLOT 4` Slide 19: "Live Demo: Review a Pull Request"
+  - `SLOT 4` Slide 25: "Live Demo: Bug Hunt"
+  - `SLOT 5` Slide 08: "LIVE DEMO: DEPLOYED TASK MANAGER"
+- **1 Explicit Live Incident Activity:**
+  - `SLOT 5` Slide 15: "LIVE INCIDENT DRILL"
+- **4 Supplementary Planned Demonstrations:**
+  - `SLOT 3` Slide 09: Automated PR Review (Inferred from activity slide)
+  - `SLOT 3` Slide 25: AI UI to Working Task Manager (Inferred from component integration slide)
+  - `SLOT 5` Slide 10: Health Check & Structured Pino Logging (Inferred from observability slide)
+  - `SLOT 5` Slide 12–14: Incident Response Workflow (Inferred from mitigation workflow slides)
+
+**Total Demonstration Portfolio:** **14 Planned Demonstrations** (10 slide-labeled demos/drills + 4 supplementary planned demonstrations).
+
+---
+
+## 2. Global Prerequisites & Fallbacks
+
+Before running any demonstration:
+- **Host Runtime:** Node.js LTS (>= 20.12.0), npm (>= 10.5.0), Git (>= 2.40.0)
+- **Browser Automation:** Chromium browser (`npx playwright install chromium`)
+- **Coding Agent:** Claude Code CLI (or compatible MCP host)
+- **Security Scanner:** Semgrep CLI (`pip install semgrep` or Docker)
+- **Cloud Accounts (Slot 5):** Vercel, Render, Neon free-tier accounts
+- **Offline Classroom Fallback:** If internet access fails, all Slot 1–4 demos operate 100% locally with SQLite and Vitest. Slot 5 uses local Docker Compose simulation.
+
+---
+
+## 3. Slot 1 Demonstrations
 
 ### DEMO-1.1: Run the Teaching Task Manager Application
-- **Slide Reference:** SLOT 1, Slide 16
-- **Learning Objective:** Demonstrate a running modern web application (React + Vite, Node + Express, Prisma SQLite) to establish baseline context before making AI changes.
-- **Starting Checkpoint:** `checkpoint/slot-01-start`
-- **Key Files:** `package.json`, `apps/web/src/App.tsx`, `apps/api/src/index.ts`, `prisma/schema.prisma`
-- **Commands to Execute:**
+- **Category:** `[EXPLICIT SLIDE DEMO]`
+- **Slide Reference:** `SLOT 1` Slide 16 ("LIVE DEMO: Run the Application")
+- **Learning Objective:** Show a running baseline web application (React + Vite, Node + Express, Prisma SQLite) to establish project context before AI edits.
+- **Starting State:** Clean checkout of planned `checkpoint/slot-01-start`
+- **Key Files [PLANNED]:** `package.json`, `apps/web/src/App.tsx`, `apps/api/src/index.ts`, `prisma/schema.sqlite.prisma`
+- **Prerequisites:** Node.js, npm, Git
+- **Planned Commands:**
 ```bash
 git checkout checkpoint/slot-01-start
 npm install
 npm run db:seed
 npm run dev
 ```
-- **Expected Observable Result:** Terminal shows API listening on http://localhost:3000 and Vite dev server on http://localhost:5173. Browser opens Task Manager displaying initial seeded tasks (e.g., 'Write PRD draft', 'Set up repository').
-- **Reset / Recovery Instructions:**
+- **Planned Observable Result:** Terminal displays API listening on `http://localhost:3000` [Planned Port] and Vite dev server on `http://localhost:5173` [Planned Port]. Browser shows Task Manager with baseline tasks (no priority, no due date, no auth).
+- **Safe Reset / Recovery:**
 ```bash
-npm run db:reset
-git checkout .
+git worktree remove ../task-manager-demo --force  # Recommended worktree flow
+# Or guarded script:
+node scripts/reset-checkpoint.mjs --target checkpoint/slot-01-start --force
 ```
-- **Instructor Run Sheet Notes:** Point out the monorepo architecture: apps/web, apps/api, packages/shared, prisma. Show students that code must run and be understood before AI writes new code.
+- **Instructor Run Sheet Notes:** Emphasize the monorepo architecture: `apps/web`, `apps/api`, `packages/shared`, `prisma`.
+
+---
 
 ### DEMO-1.2: Controlled AI Change via Inspect-Before-Edit
-- **Slide Reference:** SLOT 1, Slide 17
-- **Learning Objective:** Demonstrate the disciplined agent execution loop: give context, prompt agent to inspect code, review proposed plan, inspect diff, and verify in the running app.
-- **Starting Checkpoint:** `checkpoint/slot-01-start`
-- **Key Files:** `apps/api/src/routes/tasks.ts`, `packages/shared/src/schemas/task.ts`
-- **Commands to Execute:**
+- **Category:** `[EXPLICIT SLIDE DEMO]`
+- **Slide Reference:** `SLOT 1` Slide 17 ("LIVE DEMO: Controlled AI Change")
+- **Learning Objective:** Demonstrate the disciplined agent loop: prompt agent to inspect code, request plan, inspect diff, and verify in app.
+- **Starting State:** Planned `checkpoint/slot-01-start`
+- **Key Files [PLANNED]:** `apps/api/src/routes/tasks.ts`, `packages/shared/src/schemas/task.ts`
+- **Prerequisites:** Claude Code CLI configured
+- **Planned Commands:**
 ```bash
 claude
-# Prompt: 'Read apps/api/src/routes/tasks.ts and packages/shared/src/schemas/task.ts. Propose a plan to add a task priority field (LOW, MEDIUM, HIGH) with validation. Do NOT edit code yet.'
+# Prompt: 'Read apps/api/src/routes/tasks.ts and packages/shared/src/schemas/task.ts. Propose a plan to add an optional task description field (max 500 chars). Do NOT edit code yet.'
 ```
-- **Expected Observable Result:** Agent outputs a concise plan listing the exact files to change, rejects touching unrelated modules, and waits for confirmation before editing.
-- **Reset / Recovery Instructions:**
+- **Planned Observable Result:** Agent outputs a concise plan listing affected files, avoids unrelated refactoring, and waits for human approval.
+- **Curriculum Note:** *Task Priority is NOT required by Slot 1 slides. A generic controlled change (e.g. description field) is demonstrated.*
+- **Safe Reset / Recovery:**
 ```bash
-git checkout .
+git checkout -- apps/ packages/
 ```
-- **Instructor Run Sheet Notes:** Emphasize Plan Mode and human approval gate. Show students that accepting AI code blindly without reading diffs leads to hallucinated dependencies.
 
-## Slot 2: Controlled AI Development, Git Collaboration & Automated Testing
+---
+
+## 4. Slot 2 Demonstrations
 
 ### DEMO-2.1: Controlled Feature Change via Git Branch & Pull Request
-- **Slide Reference:** SLOT 2, Slide 16
-- **Learning Objective:** Demonstrate branch-per-feature workflow with AI assistance, reviewing Git diffs, and submitting a clean Pull Request.
-- **Starting Checkpoint:** `checkpoint/slot-02-start`
-- **Key Files:** `apps/api/src/routes/tasks.ts`, `apps/web/src/components/TaskEditModal.tsx`
-- **Commands to Execute:**
+- **Category:** `[EXPLICIT SLIDE DEMO]`
+- **Slide Reference:** `SLOT 2` Slide 16 ("Live Demo 1: Controlled Feature Change")
+- **Learning Objective:** Demonstrate branch-per-feature workflow with AI assistance, reviewing Git diffs, and preparing a Pull Request.
+- **Starting State:** Planned `checkpoint/slot-02-start`
+- **Key Files [PLANNED]:** `apps/api/src/routes/tasks.ts`, `packages/shared/src/schemas/task.ts`
+- **Prerequisites:** Git CLI, Claude Code
+- **Planned Commands:**
 ```bash
-git checkout -b feat/edit-task-due-date
+git checkout -b feat/task-due-date
 claude
-# Instruct agent to implement due date editing with validation
+# Instruct agent to implement nullable dueDate editing with ISO-8601 validation
 git diff
-git commit -m 'feat(tasks): allow updating task due date with ISO validation'
-git push origin feat/edit-task-due-date
+git commit -m "feat(tasks): allow updating task due date"
 ```
-- **Expected Observable Result:** Git diff shows minimal scoped changes to task schema, route, and UI modal. No unrelated files modified. Clean commit ready for PR review.
-- **Reset / Recovery Instructions:**
+- **Planned Observable Result:** Git diff shows minimal, scoped change to task schema and update route. No extraneous modifications.
+- **Safe Reset / Recovery:**
 ```bash
-git checkout main
-git branch -D feat/edit-task-due-date
+git checkout main && git branch -D feat/task-due-date
 ```
-- **Instructor Run Sheet Notes:** Teach students to inspect git diff in terminal or VS Code before committing. Verify the AI didn't rewrite the entire file or change formatting conventions.
+
+---
 
 ### DEMO-2.2: From Failing Test to Fix (TDD RED → GREEN)
-- **Slide Reference:** SLOT 2, Slide 25
-- **Learning Objective:** Demonstrate test-driven development: translate Acceptance Criteria into an automated integration test, observe failure, implement minimal fix, and verify pass.
-- **Starting Checkpoint:** `checkpoint/slot-02-start`
-- **Key Files:** `tests/integration/tasks.test.ts`, `apps/api/src/routes/tasks.ts`
-- **Commands to Execute:**
+- **Category:** `[EXPLICIT SLIDE DEMO]`
+- **Slide Reference:** `SLOT 2` Slide 25 ("Live Demo 2: From Failing Test to Fix")
+- **Learning Objective:** Demonstrate test-driven development: translate Acceptance Criteria into an automated test, observe failure, implement minimal fix, and verify green.
+- **Starting State:** Planned `checkpoint/slot-02-start`
+- **Key Files [PLANNED]:** `tests/integration/tasks.test.ts`, `packages/shared/src/schemas/task.ts`
+- **Prerequisites:** Vitest, Supertest
+- **Planned Commands:**
 ```bash
-npm test -w tests/integration -- -t 'rejects whitespace title'
-# Fails (RED)
-# Apply fix in packages/shared/src/schemas/task.ts (z.string().trim().min(1))
-npm test -w tests/integration -- -t 'rejects whitespace title'
-# Passes (GREEN)
+# 1. Run test expecting failure on whitespace-only title:
+npm test -w tests/integration -- -t "rejects whitespace title"  # Planned result: FAILS (RED)
+# 2. Apply fix in packages/shared/src/schemas/task.ts: z.string().trim().min(1)
+npm test -w tests/integration -- -t "rejects whitespace title"  # Planned result: PASSES (GREEN)
 ```
-- **Expected Observable Result:** Initial test fails with expected assertion error (API returned 201 instead of 400). After one-line Zod schema fix, test passes with 0 failures.
-- **Reset / Recovery Instructions:**
+- **Planned Observable Result:** Initial test fails with 400 assertion failure (returned 201). After schema refinement, test passes cleanly.
+- **Safe Reset / Recovery:**
 ```bash
-git checkout tests/ apps/
+git checkout tests/ packages/
 ```
-- **Instructor Run Sheet Notes:** Show students that a test proves the defect existed, and rerun proves the fix actually solved the root cause without regressions.
+
+---
 
 ### DEMO-2.3: Continuous Integration via GitHub Actions
-- **Slide Reference:** SLOT 2, Slide 28
-- **Learning Objective:** Demonstrate automated CI pipeline running lint, typecheck, unit tests, and integration tests on PR submission.
-- **Starting Checkpoint:** `checkpoint/slot-02-start`
-- **Key Files:** `.github/workflows/ci.yml`
-- **Commands to Execute:**
+- **Category:** `[EXPLICIT SLIDE DEMO]`
+- **Slide Reference:** `SLOT 2` Slide 28 ("Live Demo: GitHub Actions")
+- **Learning Objective:** Demonstrate CI pipeline running lint, typecheck, and test suites automatically on branch push.
+- **Starting State:** Planned `checkpoint/slot-02-start`
+- **Key Files [PLANNED]:** `.github/workflows/ci.yml`
+- **Prerequisites:** GitHub repository access, internet connection (or local `npm run typecheck && npm test` simulation)
+- **Planned Commands:**
 ```bash
-gh workflow view ci.yml
-gh run list --limit 3
-# Or simulate locally: npm run typecheck && npm test
+git push origin feat/task-due-date
+# Or simulate CI checks locally:
+npm run typecheck && npm test
 ```
-- **Expected Observable Result:** All CI jobs (lint, typecheck, test:api, test:web) execute and report green checkmarks. Show how a simulated broken test blocks merging.
-- **Reset / Recovery Instructions:**
-```bash
-None required.
-```
-- **Instructor Run Sheet Notes:** Explain that CI is the automated safety net preventing broken AI code from landing in main branch.
+- **Planned Observable Result:** CI triggers and executes lint, typecheck, and unit/integration tests with green status.
 
-## Slot 3: Agent Automations, Subagents, MCP & Rapid AI UI Development
+---
 
-### DEMO-3.1: Automated PR Review via Custom Agent Command/Skill
-- **Slide Reference:** SLOT 3, Slide 09
-- **Learning Objective:** Demonstrate a repeatable agent automation (`/review-pr`) that analyzes git diffs against Acceptance Criteria, flags scope creep, and produces structured markdown reports.
-- **Starting Checkpoint:** `checkpoint/slot-03-start`
-- **Key Files:** `.claude/commands/review-pr.md`, `.claude/skills/code-review.md`
-- **Commands to Execute:**
+## 5. Slot 3 Demonstrations
+
+### DEMO-3.1: Automated PR Review via Custom Agent Command
+- **Category:** `[SUPPLEMENTARY PLANNED DEMO]`
+- **Slide Reference:** `SLOT 3` Slide 09 ("Automated PR Review")
+- **Learning Objective:** Demonstrate a repeatable agent automation (`/review-pr`) that analyzes git diffs against Acceptance Criteria.
+- **Starting State:** Planned `checkpoint/slot-03-start`
+- **Key Files [PLANNED]:** `.claude/commands/review-pr.md`
+- **Prerequisites:** Claude Code CLI
+- **Planned Commands:**
 ```bash
 claude
-# Prompt: /review-pr feat/edit-task-due-date
+# Prompt: /review-pr feat/task-due-date
 ```
-- **Expected Observable Result:** Agent parses git diff, cross-references docs/PRD.md, evaluates test coverage, and outputs structured review table with Clear/Reject decision.
-- **Reset / Recovery Instructions:**
-```bash
-None required.
-```
-- **Instructor Run Sheet Notes:** Explain difference between one-off prompting and repeatable project-scoped commands committed to git.
+- **Planned Observable Result:** Agent parses git diff, checks Acceptance Criteria, flags scope creep, and outputs a structured review report.
+
+---
 
 ### DEMO-3.2: Playwright MCP Browser Automation
-- **Slide Reference:** SLOT 3, Slide 16
-- **Learning Objective:** Demonstrate Model Context Protocol (MCP) by giving the coding agent browser tools to inspect live DOM, execute UI actions, and verify behavior.
-- **Starting Checkpoint:** `checkpoint/slot-03-start`
-- **Key Files:** `.mcp.json`, `apps/web/src/App.tsx`
-- **Commands to Execute:**
+- **Category:** `[EXPLICIT SLIDE DEMO]`
+- **Slide Reference:** `SLOT 3` Slide 16 ("Playwright MCP — INSTRUCTOR LIVE DEMO")
+- **Learning Objective:** Connect agent to external browser tools via Model Context Protocol (MCP) to inspect live DOM and execute UI actions.
+- **Starting State:** Planned `checkpoint/slot-03-start`
+- **Key Files [PLANNED]:** `.mcp.json`, `apps/web/src/App.tsx`
+- **Prerequisites:** Playwright Chromium installed, MCP-compatible host
+- **Planned Commands:**
 ```bash
 npm run dev
 claude
-# Prompt: 'Using Playwright MCP, navigate to http://localhost:5173, click the Add Task button, enter "Complete Slot 3 Demo", and report the resulting DOM state.'
+# Prompt: 'Using Playwright MCP, navigate to http://localhost:5173, click the Add Task button, enter "Verify MCP Demo", and report the resulting DOM state.'
 ```
-- **Expected Observable Result:** Agent calls MCP tool `browser_navigate` and `browser_click`, opens headless/headed Chromium, interacts with the UI, and returns snapshot confirmation.
-- **Reset / Recovery Instructions:**
-```bash
-npm run db:reset
-```
-- **Instructor Run Sheet Notes:** Show the MCP architecture: Client (Agent) <-> Protocol (JSON-RPC) <-> Server (Playwright). Point out permissions and safety boundaries.
+- **Planned Observable Result:** Agent invokes browser MCP tools, opens Chromium, performs click and input, and returns DOM verification snapshot.
+- **Offline Fallback:** If MCP host is unavailable, run planned CLI script `npm run test:e2e` to show equivalent Playwright automation.
 
-### DEMO-3.3: Rapid AI UI Integration into Task Manager
-- **Slide Reference:** SLOT 3, Slide 25
-- **Learning Objective:** Demonstrate taking an AI-generated UI component (e.g. from v0 or Tailwind preview), integrating it into apps/web, connecting it to backend API, and checking accessibility.
-- **Starting Checkpoint:** `checkpoint/slot-03-start`
-- **Key Files:** `apps/web/src/components/TaskFilterBar.tsx`, `apps/web/src/App.tsx`
-- **Commands to Execute:**
+---
+
+### DEMO-3.3: AI UI to Working Task Manager
+- **Category:** `[SUPPLEMENTARY PLANNED DEMO]`
+- **Slide Reference:** `SLOT 3` Slide 25 ("AI UI to Working Task Manager")
+- **Learning Objective:** Take an AI-generated UI component, integrate it into `apps/web`, wire to real API endpoints, and verify keyboard accessibility.
+- **Starting State:** Planned `checkpoint/slot-03-start`
+- **Key Files [PLANNED]:** `apps/web/src/components/TaskFilterBar.tsx`
+- **Prerequisites:** Node.js, browser
+- **Planned Commands:**
 ```bash
 npm run dev -w apps/web
-# Review TaskFilterBar keyboard accessibility (tabIndex, aria-label, role='group')
+# Navigate filter bar via Tab and Enter keys in browser
 ```
-- **Expected Observable Result:** Polished responsive filter bar renders in browser, filters tasks by status (ALL, ACTIVE, COMPLETED), and can be fully navigated using only keyboard Tab/Enter.
-- **Reset / Recovery Instructions:**
-```bash
-git checkout apps/web/
-```
-- **Instructor Run Sheet Notes:** Stress that 'Beautiful is not the same as functional or accessible.' Generated UI must be wired to real state and keyboard tested.
+- **Planned Observable Result:** Filter bar updates active filter (All, Active, Completed) and maintains visible keyboard focus indicators.
 
-## Slot 4: Secure AI Code, Human vs AI Code Review & Debugging
+---
+
+## 6. Slot 4 Demonstrations
 
 ### DEMO-4.1: Security Investigation (SAST & SCA Scanning)
-- **Slide Reference:** SLOT 4, Slide 13
-- **Learning Objective:** Demonstrate automated security scanning with Semgrep and npm audit to discover Broken Access Control (IDOR) and vulnerable dependencies.
-- **Starting Checkpoint:** `checkpoint/slot-04-security-vulns`
-- **Key Files:** `apps/api/src/routes/tasks.ts`, `package.json`
-- **Commands to Execute:**
+- **Category:** `[EXPLICIT SLIDE DEMO]`
+- **Slide Reference:** `SLOT 4` Slide 13 ("Live Demo: Security Investigation")
+- **Learning Objective:** Demonstrate automated security scanning with Semgrep and npm audit to detect vulnerabilities.
+- **Starting State:** Planned `checkpoint/slot-04-security-vulns` (Dedicated training branch)
+- **Key Files [PLANNED]:** `apps/api/src/fixtures/simulated-auth.ts`, `apps/api/src/routes/tasks.ts`
+- **Prerequisites:** Semgrep CLI (`pip install semgrep` or Docker)
+- **Planned Commands:**
 ```bash
 git checkout checkpoint/slot-04-security-vulns
-npm run security:scan
+npm run security:scan  # Runs Semgrep + npm audit
 ```
-- **Expected Observable Result:** Semgrep identifies missing ownership check in `PUT /api/tasks/:id` (CWE-639 / IDOR) and dangerous eval/prompt vulnerability. npm audit reports dependency severity.
-- **Reset / Recovery Instructions:**
+- **Planned Observable Result:** Semgrep flags missing ownership validation (CWE-639 / IDOR) in simulated identity training fixture.
+- **Security Boundary Note:** *`X-User-Id` is strictly a simulated identity fixture for vulnerability demonstration, NOT authentication. It is guarded against production use.*
+- **Safe Reset / Recovery:**
 ```bash
 git checkout checkpoint/slot-04-start
 ```
-- **Instructor Run Sheet Notes:** Demonstrate the root-cause fix: adding `where: { id, userId: req.user.id }` to Prisma query. Show rescan passing with zero findings.
 
-### DEMO-4.2: Human vs AI Code Review Comparison
-- **Slide Reference:** SLOT 4, Slide 19
-- **Learning Objective:** Demonstrate side-by-side review comparison: perform manual human review first, run AI code review second, and evaluate false positives vs genuine catches.
-- **Starting Checkpoint:** `checkpoint/slot-04-start`
-- **Key Files:** `docs/review-comparison.md`, `tests/integration/tasks.test.ts`
-- **Commands to Execute:**
+---
+
+### DEMO-4.2: Review a Pull Request (Human vs AI Review)
+- **Category:** `[EXPLICIT SLIDE DEMO]`
+- **Slide Reference:** `SLOT 4` Slide 19 ("Live Demo: Review a Pull Request")
+- **Learning Objective:** Demonstrate side-by-side review comparison: perform manual human review first, run AI review second, and evaluate catches.
+- **Starting State:** Planned `checkpoint/slot-04-start`
+- **Key Files [PLANNED]:** `docs/review-comparison.md`
+- **Prerequisites:** Claude Code
+- **Planned Commands:**
 ```bash
 git diff main..sample-pr
-# Instructor presents 3 human review comments
-# Instructor triggers AI code review prompt
-# Compare results on slide matrix
+# Instructor notes human observations first
+claude
+# Run AI code review prompt and compare side-by-side
 ```
-- **Expected Observable Result:** Human caught business requirement omission (task deadline in past allowed). AI caught edge-case type issue and missing error log. Both combined yield comprehensive review.
-- **Reset / Recovery Instructions:**
-```bash
-None required.
-```
-- **Instructor Run Sheet Notes:** Emphasize: 'Record human review before showing AI findings.' AI is an assistant, not an unsupervised approver.
+- **Planned Observable Result:** Human catches business logic edge case; AI catches type edge case and missing error log.
 
-### DEMO-4.3: Structured Bug Hunt (5 Seeded Bugs)
-- **Slide Reference:** SLOT 4, Slide 25
-- **Learning Objective:** Demonstrate the scientific debugging loop (Reproduce -> Isolate -> Hypothesize -> Fix -> Regression Test) on seeded bugs.
-- **Starting Checkpoint:** `checkpoint/slot-04-bug-hunt`
-- **Key Files:** `tests/bug-hunt/bugs.test.ts`, `apps/api/src/routes/tasks.ts`
-- **Commands to Execute:**
+---
+
+### DEMO-4.3: Bug Hunt (5 Seeded Bugs)
+- **Category:** `[EXPLICIT SLIDE DEMO]`
+- **Slide Reference:** `SLOT 4` Slide 25 ("Live Demo: Bug Hunt")
+- **Learning Objective:** Demonstrate scientific debugging (Reproduce -> Isolate -> Hypothesize -> Fix -> Regression Test) on seeded training bugs.
+- **Starting State:** Planned `checkpoint/slot-04-bug-hunt` (Isolated training branch)
+- **Key Files [PLANNED]:** `tests/bug-hunt/bugs.test.ts`, `apps/api/src/routes/tasks.ts`
+- **Prerequisites:** Vitest, Supertest
+- **Planned Commands:**
 ```bash
 git checkout checkpoint/slot-04-bug-hunt
-npm test -w tests/bug-hunt -- -t 'Bug 1: pagination off-by-one'
-# Observe failure: page 1 skips first item (start = page * limit instead of (page - 1) * limit)
-# Fix one line in tasks.ts
-npm test -w tests/bug-hunt -- -t 'Bug 1: pagination off-by-one'
+npm test -w tests/bug-hunt -- -t "Bug 1: pagination off-by-one"
+# Observe failure: page 1 skips first item (start = page * limit)
+# Fix calculation: start = (page - 1) * limit
+npm test -w tests/bug-hunt -- -t "Bug 1: pagination off-by-one"
 ```
-- **Expected Observable Result:** Failing test cleanly reproduces user symptom. Minimal fix resolves calculation. Test passes without modifying other endpoints.
-- **Reset / Recovery Instructions:**
+- **Planned Observable Result:** Failing regression test reproduces defect. One-line calculation fix turns test green.
+- **Safe Reset / Recovery:**
 ```bash
 git checkout checkpoint/slot-04-start
 ```
-- **Instructor Run Sheet Notes:** Show the 5 seeded bugs: 1. Pagination off-by-one, 2. Case-sensitive search, 3. Boolean query parsing ('false' truthy), 4. Missing ownership check (IDOR), 5. Shared state/prototype pollution.
 
-## Slot 5: Production Deployment, Incident Response & Final Demo Day
+---
 
-### DEMO-5.1: Deployed Production Task Manager
-- **Slide Reference:** SLOT 5, Slide 08
-- **Learning Objective:** Demonstrate the live Task Manager deployed to cloud hosting (e.g. Render / Vercel) with production PostgreSQL database.
-- **Starting Checkpoint:** `checkpoint/slot-05-deployed`
-- **Key Files:** `Dockerfile`, `render.yaml`, `apps/api/src/index.ts`
-- **Commands to Execute:**
+## 7. Slot 5 Demonstrations
+
+### DEMO-5.1: Deployed Task Manager
+- **Category:** `[EXPLICIT SLIDE DEMO]`
+- **Slide Reference:** `SLOT 5` Slide 08 ("LIVE DEMO: DEPLOYED TASK MANAGER")
+- **Learning Objective:** Demonstrate deployed Task Manager on public cloud infrastructure (Vercel + Render + Neon PostgreSQL).
+- **Starting State:** Planned `checkpoint/slot-05-deployed`
+- **Key Files [PLANNED]:** `Dockerfile`, `render.yaml`, `vercel.json`
+- **Prerequisites:** Active internet connection, cloud dashboard access
+- **Planned Commands:**
 ```bash
+# Example Planned URLs:
 curl -s https://course4-api.onrender.com/health | jq .
 # Open https://course4-tasks.vercel.app in browser
-# Create a task, mark complete, verify persistence
 ```
-- **Expected Observable Result:** Health endpoint returns HTTP 200 with status: 'ok', database: 'connected', uptime, and version. Browser web app creates and modifies tasks against production PostgreSQL.
-- **Reset / Recovery Instructions:**
-```bash
-None required.
-```
-- **Instructor Run Sheet Notes:** Verify environment variables in hosting dashboard without exposing secrets. Emphasize difference between development dev.db and managed PostgreSQL.
+- **Planned Observable Result:** Health check returns HTTP 200 with database status `connected`. Browser interacts with live web app backed by Neon PostgreSQL.
+- **Offline Fallback:** If internet fails, run planned local containerized demo: `docker compose up`.
+
+---
 
 ### DEMO-5.2: Health Check & Structured Pino Logging Observability
-- **Slide Reference:** SLOT 5, Slide 10
-- **Learning Objective:** Demonstrate production observability: machine-readable JSON logs with request IDs, response durations, and error sanitization.
-- **Starting Checkpoint:** `checkpoint/slot-05-deployed`
-- **Key Files:** `apps/api/src/middleware/logger.ts`, `apps/api/src/routes/health.ts`
-- **Commands to Execute:**
+- **Category:** `[SUPPLEMENTARY PLANNED DEMO]`
+- **Slide Reference:** `SLOT 5` Slide 10 ("Know Whether Your System Is Healthy")
+- **Learning Objective:** Demonstrate production observability: machine-readable JSON logs with request IDs and sanitized client errors.
+- **Starting State:** Planned `checkpoint/slot-05-deployed`
+- **Key Files [PLANNED]:** `apps/api/src/middleware/logger.ts`, `apps/api/src/routes/health.ts`
+- **Prerequisites:** Node.js, curl
+- **Planned Commands:**
 ```bash
-npm run start -w apps/api
 curl -i http://localhost:3000/health
-curl -i http://localhost:3000/api/tasks/invalid-id
+curl -i http://localhost:3000/api/tasks/non-existent-id
 ```
-- **Expected Observable Result:** Terminal displays structured JSON log entries containing level, time, reqId, method, url, status, and responseTimeMs. Internal stack traces are suppressed from client responses.
-- **Reset / Recovery Instructions:**
-```bash
-None required.
-```
-- **Instructor Run Sheet Notes:** Explain: 'You cannot fix what you cannot observe.' Contrast unformatted console.log with structured JSON logs ingested by log aggregators.
+- **Planned Observable Result:** Server outputs structured JSON log entries containing `level`, `reqId`, `method`, `url`, `status`, and `responseTimeMs`. Client receives sanitized JSON without internal stack traces.
+
+---
 
 ### DEMO-5.3: Production Incident Response Drill
-- **Slide Reference:** SLOT 5, Slide 12-14
-- **Learning Objective:** Demonstrate the incident triage workflow (Mitigate First -> Investigate Root Cause -> Fix -> Postmortem) during a simulated production failure.
-- **Starting Checkpoint:** `checkpoint/slot-05-incident`
-- **Key Files:** `docs/runbook.md`, `docs/postmortem-drill.md`
-- **Commands to Execute:**
+- **Category:** `[EXPLICIT SLIDE DRILL]`
+- **Slide Reference:** `SLOT 5` Slide 15 ("LIVE INCIDENT DRILL") & Slides 12–14
+- **Learning Objective:** Demonstrate incident triage (Mitigate First -> Investigate Root Cause -> Fix -> Postmortem) using operational runbook.
+- **Starting State:** Planned `checkpoint/slot-05-incident` (Simulated outage branch)
+- **Key Files [PLANNED]:** `docs/runbook.md`, `docs/postmortem-drill.md`
+- **Prerequisites:** curl, Git
+- **Planned Commands:**
 ```bash
 git checkout checkpoint/slot-05-incident
-curl -i http://localhost:3000/health
-# Returns 503 Service Unavailable (DB pool exhaustion or bad config)
-# Execute runbook mitigation: revert deployment or reload config
+curl -i http://localhost:3000/health  # Returns HTTP 503 (Simulated DB failure)
+# Follow runbook: roll back configuration or revert to checkpoint/slot-05-deployed
 git checkout checkpoint/slot-05-deployed
-curl -i http://localhost:3000/health # Returns 200 OK
+curl -i http://localhost:3000/health  # Returns HTTP 200 (Service Restored)
 ```
-- **Expected Observable Result:** Immediate mitigation restores health check to 200 within 60 seconds. Postmortem document captures root cause, timeline, impact, and prevention action items.
-- **Reset / Recovery Instructions:**
-```bash
-git checkout checkpoint/slot-05-deployed
-```
-- **Instructor Run Sheet Notes:** Reinforce: 'Mitigate first, investigate second.' Students learn to act calmly using the runbook rather than guessing in production.
+- **Planned Observable Result:** Service restored within drill target. Postmortem template records incident timeline, impact, and prevention items.

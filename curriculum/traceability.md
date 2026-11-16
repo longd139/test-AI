@@ -1,14 +1,19 @@
 # Curriculum Traceability Matrix — Course 4: The Modern AI Software Developer
 
-> **Source of Truth:** 5 PowerPoint files in `SLIDE-4HOURS` (Total: 157 slides) mapped against original Session01–Session10 materials, course syllabus (`Course4_Syllabus_v2.xlsx`), and the unified Teaching Task Manager repository (`course4-teaching-task-manager`).
+> **Source of Truth:** 5 PowerPoint files in `SLIDE-4HOURS` (Total: 157 slides) mapped against original Session01–Session10 materials, course syllabus (`Course4_Syllabus_v2.xlsx`), and the unified Teaching Task Manager repository (`course4-teaching-task-manager`).  
+> **Status:** Phase P0.1 Corrected Design. All checkpoints, commands, and expected evidence below are **PLANNED** for execution in Phases P1–P5.
 
-## Classification Taxonomy
-- `CONCEPT`: Theoretical principle, mental model, or foundational knowledge.
-- `DIAGRAM`: Architectural flow, system topology, or state/process diagram.
-- `LIVE_DEMO`: Step-by-step instructor-led demonstration using the Teaching Task Manager repository.
-- `LAB`: Hands-on student exercise with concrete input state, steps, and verifiable deliverables.
-- `REVIEW`: Synthesis, reflection, checkpoint criteria, or checklist.
-- `ASSESSMENT`: Rubric, grading evaluation, sprint submission, or Demo Day defense.
+## Classification Taxonomy & Reconciliation
+Every slide is categorized according to its primary instructional modality:
+- `CONCEPT` (94 slides): Theoretical principle, mental model, or foundational knowledge.
+- `DIAGRAM` (16 slides): Architectural flow, system topology, or state/process diagram.
+- `LIVE_DEMO` (12 slides): Instructor live demonstrations and demonstration activities.
+- `LAB` (12 slides): The 12 deck-labelled hands-on student labs (Slots 1–4).
+- `REVIEW` (17 slides): Synthesis, reflection, checkpoint criteria, or checklist.
+- `ASSESSMENT` (6 slides): Summative Demo Day defense and milestone rubric slides (Slot 5).
+- **Total: Exactly 157 slides.**
+
+*Reconciliation Note:* The separate **Demo Inventory** inventories 14 demonstrations (9 explicitly deck-titled Live Demos + 1 live incident drill + 4 supplementary planned demonstrations). The **Lab Inventory** inventories 14 guided student labs/activities (12 deck-labelled labs + 2 guided practical activities in Slot 5) plus 1 summative Demo Day assessment.
 
 ---
 ## Slot 1: AI-Native Engineering Foundations & Requirements (4 Hours)
@@ -33,7 +38,7 @@
 | SLOT1-S14 | **Meet the Teaching Project**<br>_Task Manager_ | `CONCEPT` | Session 01 | Task Manager overview (apps/web, apps/api, packages/shared, prisma) |
 | SLOT1-S15 | **Frontend**<br>_Backend_ | `DIAGRAM` | Session 01 |  |
 | SLOT1-S16 | **LIVE DEMO:**<br>_Run the Application_ | `LIVE_DEMO` | Session 01 | **Demo: Run Teaching App**<br>Checkpoint: `checkpoint/slot-01-start`<br>Commands: `npm install`, `npm run dev`<br>Outcome: Web at localhost:5173, API at localhost:3000<br>Evidence: Running browser showing task list, passing health check |
-| SLOT1-S17 | **LIVE DEMO:**<br>_Controlled AI Change_ | `LIVE_DEMO` | Session 01 | **Demo: Controlled AI Change**<br>Checkpoint: `checkpoint/slot-01-start`<br>Commands: Claude Code prompt to inspect `apps/api/src/routes/tasks.ts`, generate plan, review diff<br>Outcome: Small validated task field addition<br>Evidence: Git diff showing minimal scoped edit |
+| SLOT1-S17 | **LIVE DEMO:**<br>_Controlled AI Change_ | `LIVE_DEMO` | Session 01 | **[PLANNED] Demo: Controlled AI Change**<br>Checkpoint: `checkpoint/slot-01-start`<br>Commands: Claude Code prompt to inspect `apps/api/src/routes/tasks.ts`, generate plan, review diff<br>Outcome: Generic controlled change (e.g. optional description or input trim). *Task Priority is NOT required or pre-implemented in Slot 1.*<br>Evidence: Git diff showing minimal scoped edit |
 | SLOT1-S18 | **Software Starts with a Problem**<br>_Business problems should drive software decisions._ | `CONCEPT` | Session 02 |  |
 | SLOT1-S19 | **Business Analysis Foundation**<br>_Problem_ | `CONCEPT` | Session 02 |  |
 | SLOT1-S20 | **Fact vs Assumption**<br>_Fact:_ | `CONCEPT` | Session 02 |  |
@@ -155,7 +160,7 @@
 | SLOT4-S10 | **Instruction Confusion**<br>_When Untrusted Data Becomes Instructions_ | `CONCEPT` | Session 07 |  |
 | SLOT4-S11 | **Three rules that**<br>_keep agents safe._ | `CONCEPT` | Session 07 |  |
 | SLOT4-S12 | **Don’t Let Vulnerabilities**<br>_Reach Main._ | `DIAGRAM` | Session 07 |  |
-| SLOT4-S13 | **Live Demo:**<br>_Security Investigation_ | `LIVE_DEMO` | Session 07 | **Demo 1: Security Investigation (SAST & SCA)**<br>Checkpoint: `checkpoint/slot-04-security`<br>Commands: `npm run security:scan` (Semgrep + `npm audit`)<br>Outcome: Identifies broken access control (IDOR on task update) and unsafe prompt/eval<br>Evidence: Terminal scan report, triage table |
+| SLOT4-S13 | **Live Demo:**<br>_Security Investigation_ | `LIVE_DEMO` | Session 07 | **[PLANNED] Demo 1: Security Investigation (SAST & SCA)**<br>Checkpoint: `checkpoint/slot-04-security-vulns` (Dedicated training branch)<br>Commands: `npm run security:scan` (Semgrep + `npm audit`)<br>Outcome: Identifies IDOR in simulated identity training fixture (not authentication; blocked in production)<br>Evidence: Terminal scan report, triage table |
 | SLOT4-S14 | **Why Review**<br>_AI-Generated Code?_ | `CONCEPT` | Session 08 |  |
 | SLOT4-S15 | **What Should a**<br>_Reviewer_ | `CONCEPT` | Session 08 |  |
 | SLOT4-S16 | **What Makes a Good**<br>_Review Comment?_ | `CONCEPT` | Session 08 |  |
@@ -169,7 +174,7 @@
 | SLOT4-S24 | **AI-Assisted**<br>_Debugging_ | `CONCEPT` | Session 08 |  |
 | SLOT4-S25 | **Live Demo:**<br>_Bug Hunt_ | `LIVE_DEMO` | Session 08 | **Demo 3: Bug Hunt (5 Seeded Bugs)**<br>Checkpoint: `checkpoint/slot-04-bug-hunt`<br>Commands: `npm test -w tests/bug-hunt`<br>Outcome: Instructor demonstrates reproducing Bug 1 (pagination off-by-one) and Bug 4 (missing ownership check)<br>Evidence: Failing regression test, applied fix, green test |
 | SLOT4-S26 | **INVESTIGATE. REVIEW.**<br>_FIX._ | `REVIEW` | Session 08 |  |
-| SLOT4-S27 | **Lab 01:**<br>_Security Investigation_ | `LAB` | Session 08 | **Lab 01: Security Investigation & Remediation**<br>Target: `apps/api`<br>Task: Fix 3 security vulnerabilities (broken auth/IDOR, input validation, secret leakage), add automated regression tests<br>Evidence: `docs/security-report.md`, green Semgrep scan in CI |
+| SLOT4-S27 | **Lab 01:**<br>_Security Investigation_ | `LAB` | Session 08 | **[PLANNED] Lab 01: Security Investigation & Remediation**<br>Target: `apps/api` on training branch `checkpoint/slot-04-security-vulns`<br>Task: Fix 3 security vulnerabilities in simulated fixture, add automated regression tests. *X-User-Id is simulated identity for testing only, not auth.*<br>Evidence: `docs/security-report.md`, green Semgrep scan in CI |
 | SLOT4-S28 | **Lab 02: Human vs AI Code Review**<br>_Scenario_ | `LAB` | Session 08 | **Lab 02: Human vs AI Code Review**<br>Target: Cross-team PR (100–400 LOC)<br>Task: Human review first, AI review second, compare validity & false positives<br>Evidence: `docs/review-comparison.md`, PR review comments on GitHub |
 | SLOT4-S29 | **Lab 03:**<br>_Seeded Bug Hunt_ | `LAB` | Session 08 | **Lab 03: Seeded Bug Hunt**<br>Target: 5 Seeded Bugs in Task Manager<br>Task: Reproduce all 5 bugs with failing tests, isolate root cause, apply minimal fix<br>Evidence: 5/5 regression tests passing, bug-hunt report |
 | SLOT4-S30 | **Make Your MVP Safer.**<br>_01_ | `CONCEPT` | Session 08 |  |

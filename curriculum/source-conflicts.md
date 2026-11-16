@@ -1,6 +1,7 @@
 # Course 4 Source Conflicts, Ambiguities & Required Decisions
 
-> **Context:** Reconciling discrepancies across the approved `SLIDE-4HOURS` PowerPoint files (Primary Source of Truth), the original 10-session materials (`Course4_ModernAISoftwareDeveloper_Materials`), the official syllabus (`Course4_Syllabus_v2.xlsx`), and the legacy multi-repo draft (`SRC_GITHUB_4_SLOTS`).
+> **Context:** Reconciling discrepancies across the approved `SLIDE-4HOURS` PowerPoint files (Primary Source of Truth), the original 10-session materials (`Course4_ModernAISoftwareDeveloper_Materials`), the official syllabus (`Course4_Syllabus_v2.xlsx`), and the legacy multi-repo draft (`SRC_GITHUB_4_SLOTS`).  
+> **Status:** Phase P0.1 Corrected Design.
 
 ---
 
@@ -46,11 +47,11 @@
   - `Course4_Syllabus_v2.xlsx`: "Database: SQLite or Supabase free tier".
   - Master Instruction Section 3: "Prisma, SQLite for early local teaching checkpoints, PostgreSQL for production deployment".
 - **Nature of Conflict:**
-  In-memory stores do not teach students real data modeling, persistence constraints, schema migrations, or how coding agents interact with typed ORMs.
+  In-memory stores do not teach students real data modeling, persistence constraints, schema migrations, or how coding agents interact with typed ORMs. Conversely, claiming SQLite and PostgreSQL migration histories can be swapped by simply editing the provider string is fragile and breaks Prisma migration logs.
 - **Resolution:**
-  Standardize on **Prisma ORM** across the entire lifecycle:
-  - **Slots 1–4 (Local Development):** Prisma configured with **SQLite** (`prisma/dev.db`). Zero cloud setup, completely self-contained, instant seeding (`npm run db:seed`).
-  - **Slot 5 (Production Deployment):** Prisma configured with **PostgreSQL** via environment variables (`DATABASE_URL`). Students experience real migration commands (`prisma migrate deploy`) and production connection pooling.
+  Standardize on **Prisma ORM** with **separate schema and environment definitions**:
+  - **Slots 1–4 (Local Development):** Prisma configured with **SQLite** (`prisma/dev.db`, using `prisma/schema.sqlite.prisma`). Zero cloud setup, completely self-contained, reproducible seeding via planned `npm run db:seed`.
+  - **Slot 5 (Production Deployment):** Prisma configured with **PostgreSQL on Neon** (using `prisma/schema.postgres.prisma` and `DATABASE_URL`). A dedicated migration rehearsal runs in CI/staging before production deployment.
 
 ---
 
@@ -90,25 +91,35 @@
 
 ---
 
-## 2. Features Required by the Slides but Not Yet Formally Defined
+## 2. Features Required by Slides vs. Optional Demonstration Examples
 
-The following functional capabilities are explicitly shown or required in the slides, but lack precise implementation schemas in the legacy repository materials:
+Following independent audit verification, the functional capabilities shown across the decks are categorized into **Mandatory Slide Requirements** versus **Optional Proposed Examples**:
 
-| Required Feature | Referencing Slides | Current Ambiguity / Gap | Proposed Architectural Resolution |
+| Feature | Referencing Slides | Status in Curriculum | Architectural Resolution |
 |:---|:---|:---|:---|
-| **1. Task Priority (`LOW`, `MEDIUM`, `HIGH`)** | `SLOT 1` Slide 17, `SLOT 1` Slide 29 | Mentioned as an example controlled change, but not in legacy `slot-01` baseline schema. | Include optional priority in `packages/shared/src/schemas/task.ts` default to `MEDIUM`. |
-| **2. Task Due Date / Deadline Editing** | `SLOT 2` Slide 16, `SLOT 2` Slide 30 | Core scenario for Slot 2 Live Demo 1 and Lab 01 (Agent Planning Challenge). | Add nullable `dueDate` field with ISO-8601 string parsing via Zod. |
-| **3. Multi-User Authentication & Ownership** | `SLOT 4` Slide 06-07 (IDOR), Slide 25 (Bug 4) | Slides require demonstrating that User 2 cannot edit or delete User 1's tasks. Previous code lacked user auth. | Implement a lightweight educational auth middleware reading `X-User-Id` header (Users 1, 2, 3), binding to `userId` foreign key in Prisma. |
-| **4. Task Search & Pagination** | `SLOT 4` Slide 25 (Bug 1 & Bug 2) | Seeded Bug 1 (pagination off-by-one) and Bug 2 (case-sensitive search) require query params. | Define `GET /api/tasks?q=&page=&limit=&done=` in `apps/api` with typed `TaskQuerySchema`. |
-| **5. Health Endpoint & Observability** | `SLOT 5` Slide 08 & Slide 10 | Explicitly requires `GET /health` returning DB connectivity, uptime, and status. | Implement dedicated `health.ts` controller in `apps/api` querying `prisma.$queryRaw` for active database verification. |
-| **6. Structured JSON Logging** | `SLOT 5` Slide 10 | Slides require structured JSON logs with `reqId`, `method`, `url`, `status`, and `responseTimeMs`. | Integrate `pino` and `pino-http` middleware with correlation request IDs. |
+| **1. Task Priority (`LOW`, `MEDIUM`, `HIGH`)** | `SLOT 1` Slide 17 & Slide 29 ask for a *generic controlled change*. Priority is NOT in the slide text. | **Optional Demonstration Example (Slot 2 only)** | **Not in Slot 1.** In Slot 2, instructor may use Priority as a clean example of an AI-assisted schema addition. Must not be pre-implemented in Slot 1. |
+| **2. Task Due Date / Deadline Editing** | `SLOT 2` Slide 16, `SLOT 2` Slide 30 | **Mandatory Slide Requirement (Slot 2)** | Core scenario for Slot 2 Live Demo 1 and Lab 01 (Agent Planning Challenge). Add nullable `dueDate` field with ISO-8601 validation in Slot 2. Must be completely absent from Slot 1 starting state. |
+| **3. Simulated Identity for Ownership Checks (`X-User-Id`)** | `SLOT 4` Slide 06-07 (IDOR), Slide 25 (Bug 4) | **Mandatory Training Fixture (Slot 4 only)** | **NOT Authentication.** Slots 1–3 and Slot 5 production are single-tenant/team board with NO authentication. In Slot 4, a dev/test-only fixture simulates identity. Explicitly blocked in production with hard startup guard. |
+| **4. Task Search & Pagination** | `SLOT 4` Slide 25 (Bug 1 & Bug 2) | **Mandatory Slide Requirement (Slot 4)** | Seeded Bug 1 (pagination off-by-one) and Bug 2 (case-sensitive search) require query parameters. Planned for `apps/api` with `TaskQuerySchema`. |
+| **5. Health Endpoint (`GET /health`)** | `SLOT 5` Slide 08 & Slide 10 | **Mandatory Slide Requirement (Slot 5)** | Observability endpoint returning active database connectivity (`SELECT 1`), uptime, and version. |
+| **6. Structured Pino JSON Logging** | `SLOT 5` Slide 10 | **Mandatory Slide Requirement (Slot 5)** | Structured JSON logs capturing `reqId`, `method`, `url`, `status`, and `responseTimeMs` for observability. |
 
 ---
 
-## 3. Decisions Required from External Reviewer
+## 3. Decisions Reconciled for Phase P1
 
-Before beginning Phase P1 implementation, the external reviewer should confirm:
-1. **Approval of the 5-slot monorepo checkpoint model** as the replacement for the legacy 4-separate-repositories model.
-2. **Approval of SQLite (Slots 1–4) -> PostgreSQL (Slot 5)** dual-database evolution via Prisma.
-3. **Approval of Playwright MCP** as the primary Slot 3 live demo tool.
-4. **Acceptance of the proposed feature specifications** listed above (priority, due dates, ownership auth, pagination, health, and structured logging).
+1. **Repository Architecture:** ONE coherent evolving monorepo (`course4-teaching-task-manager`) with Git checkpoints.
+2. **Database Reference Architecture:**
+   - Local Dev: SQLite (`prisma/dev.db`)
+   - Production Cloud: Neon PostgreSQL (reference) or Supabase (alternative)
+   - Independent schema files (`schema.sqlite.prisma` and `schema.postgres.prisma`) to avoid provider rewriting.
+3. **Deployment Reference Stack:**
+   - Web: Vercel (Edge SPA)
+   - API: Render (Web Service)
+   - Database: Neon (Serverless PostgreSQL)
+4. **Security Boundary:**
+   - Single-user/team board for Slots 1–3 and Slot 5 production.
+   - `X-User-Id` is strictly a development/test simulated identity fixture for Slot 4 vulnerability reproduction, never authentication, and halted if executed in production.
+5. **Slot 1 Baseline Scope:**
+   - Basic tasks: `id`, `title`, `completed`, `createdAt`, `updatedAt`.
+   - No Priority, no Due Date, no Auth in Slot 1.
