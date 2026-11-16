@@ -2,8 +2,11 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import request from 'supertest';
 import fs from 'node:fs';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { app } from '../src/app.js';
 import { prisma } from '../src/db.js';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 describe('Task Manager API Integration Tests', () => {
   beforeEach(async () => {
@@ -27,10 +30,10 @@ describe('Task Manager API Integration Tests', () => {
       const devDbPath = path.resolve(__dirname, '../../../prisma/dev.db');
       if (fs.existsSync(devDbPath)) {
         const statsBefore = fs.statSync(devDbPath);
-        
+
         // Execute a destructive database delete in the test environment
         await prisma.task.deleteMany({});
-        
+
         const statsAfter = fs.statSync(devDbPath);
         expect(statsAfter.mtimeMs).toBe(statsBefore.mtimeMs);
       }

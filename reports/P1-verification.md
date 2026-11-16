@@ -5,7 +5,7 @@
 > **Lead Software Engineer:** Antigravity  
 > **Repository:** `course4-teaching-task-manager`  
 > **Phase Evaluated:** Phase P1 (Slot 1 Foundation Implementation)  
-> **Status:** **PHASE P1 COMPLETE — 100% VERIFIED**
+> **Status:** P1.2 runtime verification passed; final ready checkpoint packaging is in progress.
 
 ---
 
@@ -183,8 +183,8 @@ The instructor guide in `instructor/run-sheets/slot-01-demo-guide.md` has been v
 
 - **Starting Commit:** `efefd7120fdeae15f3a0437a5a22ac4a5731c730` (P0.1 completion)
 - **Phase P1 Base Commit:** `032b75f3a7f805aee17724a4805c56d7877237ad` (amended from initial draft `ae7555d`)
-- **Current P1.1 Remediation Commit:** To be recorded upon reviewer approval of P1.1 remediation.
-- **Tag Created:** `checkpoint/slot-01-start` (currently pointing to `032b75f`, pending approval to update)
+- **Current P1.1 Remediation Commit:** `4dd2621b68ffe2f229eeb4a186d7191f76460b73` (committed; runtime verification pending).
+- **Original Tag:** `checkpoint/slot-01-start` remains unchanged at `032b75f`; the verified result uses a separate `checkpoint/slot-01-ready` tag.
 - **Branch:** `main`
 
 > [!NOTE]
@@ -222,9 +222,9 @@ The instructor guide in `instructor/run-sheets/slot-01-demo-guide.md` has been v
 ## 8. Phase Gate Recommendation
 
 > [!IMPORTANT]
-> **PHASE P1 IS COMPLETE AND READY FOR REVIEW.**  
+> **P1.2 runtime verification passed and is ready for external review.**
 > - Monorepo architecture, application source, shared validation schemas, and SQLite database are fully operational.  
-> - 24/24 automated tests are passing.  
+> - Executed result: 29/29 automated tests passing on Node.js v22.11.0.
 > - Slot 1 live demos and documentation are verified.  
-> - Git checkpoint `checkpoint/slot-01-start` is tagged.  
+> - `checkpoint/slot-01-start` remains the original baseline tag; the verified checkpoint is published locally as the separate `checkpoint/slot-01-ready` tag.
 > **Phase P2 is NOT started.** Execution is **STOPPED** awaiting external review.

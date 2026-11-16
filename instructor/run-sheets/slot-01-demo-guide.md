@@ -83,19 +83,24 @@ To ensure that live coding does not touch or dirty uncommitted work, lecture not
 
 **PowerShell (from repository root `D:\FPT\project\Course4_ModernAISoftwareDeveloper_Materials1\SRC-GUIDE`):**
 ```powershell
-# Check target path before creating
-if (Test-Path "..\demo-worktree") { Remove-Item -Recurse -Force "..\demo-worktree" }
-git worktree add -b demo-slot-01 ..\demo-worktree checkpoint/slot-01-start
-cd ..\demo-worktree
+# Generate a unique path. Refuse, rather than overwrite, if it already exists.
+$demoBranch = "demo-slot-01-$(Get-Date -Format 'yyyyMMdd-HHmmss')"
+$demoPath = Join-Path (Split-Path -Parent (Get-Location)) $demoBranch
+if (Test-Path -LiteralPath $demoPath) { throw "Refusing to reuse existing path: $demoPath" }
+git worktree add -b $demoBranch $demoPath checkpoint/slot-01-start
+if ($LASTEXITCODE -ne 0) { throw 'Git worktree creation failed; active repository was not changed.' }
+Set-Location -LiteralPath $demoPath
 npm install
 npm run db:reset
 ```
 
 *Bash equivalent:*
 ```bash
-if [ -d "../demo-worktree" ]; then rm -rf "../demo-worktree"; fi
-git worktree add -b demo-slot-01 ../demo-worktree checkpoint/slot-01-start
-cd ../demo-worktree
+demo_branch="demo-slot-01-$(date +%Y%m%d-%H%M%S)"
+demo_path="../$demo_branch"
+if [ -e "$demo_path" ]; then printf 'Refusing to reuse existing path: %s\n' "$demo_path" >&2; exit 1; fi
+git worktree add -b "$demo_branch" "$demo_path" checkpoint/slot-01-start || exit 1
+cd "$demo_path"
 npm install
 npm run db:reset
 ```
@@ -129,7 +134,7 @@ npm run db:reset
      ```
 
 3. **Phase 3: Inspect Git Diff in Terminal:**
-   Exit Claude or open a secondary terminal in `..\demo-worktree`:
+    Exit Claude or open a secondary terminal in the disposable worktree:
    ```powershell
    git diff packages/shared/ apps/api/
    ```
@@ -148,27 +153,32 @@ npm run db:reset
    > **NEVER run destructive commands in your active working tree:**
    > Do NOT use `git checkout .` or `git clean -fd` in the main repository, as those commands can permanently destroy uncommitted work or untracked course files.
 
-   To clean up after the live demo, simply return to the main repository and remove the disposable worktree and throwaway branch:
+    To clean up after the live demo, return to the main repository. Cleanup is deliberately opt-in: it refuses an unregistered or dirty worktree and requires confirmation. If anything is uncertain, stop and retain the worktree for later review.
 
    **PowerShell:**
    ```powershell
-   # Return to main repository directory:
-   cd ..\SRC-GUIDE
-
-   # Safely remove disposable worktree and branch:
-   git worktree remove --force ..\demo-worktree
-   git branch -D demo-slot-01
-
-   # Re-verify main repository remains on clean checkpoint:
-   git status
-   npm run db:reset
+    # Run from the main repository. Substitute the exact values printed during setup.
+    Set-Location 'D:\FPT\project\Course4_ModernAISoftwareDeveloper_Materials1\SRC-GUIDE'
+    $demoBranch = '<demo branch created above>'
+    $demoPath = '<demo path created above>'
+    $registered = git worktree list --porcelain | Where-Object { $_ -eq "worktree $demoPath" }
+    if (-not $registered) { throw "Refusing removal: $demoPath is not a registered Git worktree." }
+    if (git -C $demoPath status --porcelain) { throw 'Refusing removal: demo worktree has uncommitted changes.' }
+    $answer = Read-Host "Remove verified clean disposable worktree $demoPath? Type REMOVE to continue"
+    if ($answer -ne 'REMOVE') { throw 'Cleanup cancelled; no files were removed.' }
+    git worktree remove $demoPath
+    if ($LASTEXITCODE -ne 0) { throw 'Worktree removal failed; inspect it manually.' }
+    git branch -d $demoBranch
    ```
 
    *Bash equivalent:*
    ```bash
-   cd ../SRC-GUIDE
-   git worktree remove --force ../demo-worktree
-   git branch -D demo-slot-01
-   git status
-   npm run db:reset
+    cd ../SRC-GUIDE
+    demo_branch='<demo branch created above>'
+    demo_path='<demo path created above>'
+    git worktree list --porcelain | grep -Fx "worktree $demo_path" >/dev/null || { echo "Refusing removal: not a registered worktree" >&2; exit 1; }
+    [ -z "$(git -C "$demo_path" status --porcelain)" ] || { echo "Refusing removal: worktree is dirty" >&2; exit 1; }
+    read -r -p "Remove verified clean disposable worktree $demo_path? Type REMOVE to continue: " answer
+    [ "$answer" = REMOVE ] || { echo 'Cleanup cancelled; no files were removed.'; exit 1; }
+    git worktree remove "$demo_path" && git branch -d "$demo_branch"
    ```
