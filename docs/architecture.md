@@ -141,30 +141,26 @@ flowchart LR
 > - **Slot 4 Security Exercise:** Demonstrates Broken Object Level Authorization (OWASP API1:2023 / IDOR) using an **isolated training fixture**.
 > - **Production Scope (Slot 5):** Operates as a **single-tenant production application**. It **strictly forbids and rejects arbitrary client-supplied identity headers**.
 
-### 4.2. Isolated Training Fixture (`simulated-auth.ts`)
-In Slot 4 Lab 01 (Security Investigation) and Lab 03 (Bug Hunt Bug 4), students reproduce a vulnerability where User 2 deletes or edits User 1's tasks.
+### 4.2. Isolated Training Fixture (`simulated-auth.ts`) — [DEFERRED TO SLOT 4; NOT IN P1]
+In Slot 4 Lab 01 (Security Investigation) and Lab 03 (Bug Hunt Bug 4), students reproduce an IDOR vulnerability where User 2 deletes or edits User 1's tasks.
 
-To reproduce this without building a fragile full-blown authentication provider:
-1. **Fixture Isolation:** The header `X-User-Id` is parsed **exclusively within an isolated development/test fixture** (`src/fixtures/simulated-auth.ts`) on dedicated training branches (`checkpoint/slot-04-security-vulns`, `checkpoint/slot-04-bug-hunt`).
-2. **Explicit Labeling:** The `X-User-Id` header is strictly classified as **SIMULATED TEST IDENTITY**, **NEVER AS AUTHENTICATION**. It provides mock caller context for vulnerability reproduction only.
-3. **Hard Production Startup Safeguard:**
+**Crucial Boundaries & Non-Negotiable Rules:**
+1. **Never Authentication:** `X-User-Id` is **never** considered authentication. It is strictly an untrusted, client-supplied test header used solely as a training fixture to simulate caller identity for vulnerability reproduction.
+2. **Completely Absent from Slots 1–3:** Phase P1 (Slot 1) and Slot 2–3 codebases contain **no simulated identity fixtures, no auth middleware, and no user ownership checks**. The baseline Task Manager is strictly a single-user / team-shared workspace.
+3. **Disabled & Prohibited in Production:** The isolated Slot 4 training fixture is strictly forbidden from running in production.
+4. **Startup-Time Boot Assertion:** Rather than relying solely on per-request checks, the application server enforces a **boot-time startup assertion** that terminates the Node process immediately if any simulated fixture is active under production configuration:
    ```typescript
-   // apps/api/src/fixtures/simulated-auth.ts
-   export function simulatedIdentityMiddleware(req: Request, res: Response, next: NextFunction) {
+   // Planned for Slot 4 training branch only (NOT implemented in P1):
+   export function assertSafeEnvironment(): void {
      if (process.env.NODE_ENV === 'production') {
-       // HARD SECURITY HALT: Prevent execution in production
-       return res.status(500).json({
-         error: 'SECURITY CONFIGURATION ERROR: Simulated identity fixture is prohibited in production.'
-       });
+       // HARD PROCESS HALT AT STARTUP
+       console.error('FATAL SECURITY HALT: Simulated identity fixture or training vulnerability active in production mode.');
+       process.exit(1);
      }
-     
-     const rawHeader = req.header('x-user-id');
-     req.simulatedUserId = rawHeader ? Number(rawHeader) : null;
-     next();
    }
    ```
-4. **Production Rejection:** In production (`NODE_ENV=production`), `apps/api` rejects or strips all incoming `X-User-Id` headers.
-5. **Multi-User Production Specification (Future Extension):** If full multi-user isolation is added in future iterations, it must use server-validated authentication (e.g. signed HTTP-only session cookies or JWT verified against a server secret) with server-side ownership enforcement (`where: { id, userId: req.user.id }`).
+5. **Production Ingress Boundary:** In production (`NODE_ENV=production`), `apps/api` completely ignores and strips any arbitrary client-supplied `X-User-Id` headers.
+6. **Explicit Deferred Implementation:** **The Slot 4 fixture is NOT implemented in Phase P1.** Phase P1 contains zero authentication or identity fixtures.
 
 ---
 
