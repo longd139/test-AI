@@ -1,8 +1,10 @@
-# Course 4 Source Conflicts & Resolutions
+# Course 4 Source Conflicts, Ambiguities & Required Decisions
 
 > **Context:** Reconciling discrepancies across the approved `SLIDE-4HOURS` PowerPoint files (Primary Source of Truth), the original 10-session materials (`Course4_ModernAISoftwareDeveloper_Materials`), the official syllabus (`Course4_Syllabus_v2.xlsx`), and the legacy multi-repo draft (`SRC_GITHUB_4_SLOTS`).
 
 ---
+
+## 1. Major Source Conflicts & Proposed Resolutions
 
 ### Conflict 1: Repository Delivery Strategy (4 Disconnected Repositories vs. 1 Evolving Monorepo)
 
@@ -85,3 +87,28 @@
   Simple two-folder layout lacks a shared package for cross-tier type definitions and Zod validation schemas.
 - **Resolution:**
   Implement the full educational monorepo architecture mandated by Section 5, ensuring `packages/shared` exports schemas used by both frontend (`apps/web`) and backend (`apps/api`).
+
+---
+
+## 2. Features Required by the Slides but Not Yet Formally Defined
+
+The following functional capabilities are explicitly shown or required in the slides, but lack precise implementation schemas in the legacy repository materials:
+
+| Required Feature | Referencing Slides | Current Ambiguity / Gap | Proposed Architectural Resolution |
+|:---|:---|:---|:---|
+| **1. Task Priority (`LOW`, `MEDIUM`, `HIGH`)** | `SLOT 1` Slide 17, `SLOT 1` Slide 29 | Mentioned as an example controlled change, but not in legacy `slot-01` baseline schema. | Include optional priority in `packages/shared/src/schemas/task.ts` default to `MEDIUM`. |
+| **2. Task Due Date / Deadline Editing** | `SLOT 2` Slide 16, `SLOT 2` Slide 30 | Core scenario for Slot 2 Live Demo 1 and Lab 01 (Agent Planning Challenge). | Add nullable `dueDate` field with ISO-8601 string parsing via Zod. |
+| **3. Multi-User Authentication & Ownership** | `SLOT 4` Slide 06-07 (IDOR), Slide 25 (Bug 4) | Slides require demonstrating that User 2 cannot edit or delete User 1's tasks. Previous code lacked user auth. | Implement a lightweight educational auth middleware reading `X-User-Id` header (Users 1, 2, 3), binding to `userId` foreign key in Prisma. |
+| **4. Task Search & Pagination** | `SLOT 4` Slide 25 (Bug 1 & Bug 2) | Seeded Bug 1 (pagination off-by-one) and Bug 2 (case-sensitive search) require query params. | Define `GET /api/tasks?q=&page=&limit=&done=` in `apps/api` with typed `TaskQuerySchema`. |
+| **5. Health Endpoint & Observability** | `SLOT 5` Slide 08 & Slide 10 | Explicitly requires `GET /health` returning DB connectivity, uptime, and status. | Implement dedicated `health.ts` controller in `apps/api` querying `prisma.$queryRaw` for active database verification. |
+| **6. Structured JSON Logging** | `SLOT 5` Slide 10 | Slides require structured JSON logs with `reqId`, `method`, `url`, `status`, and `responseTimeMs`. | Integrate `pino` and `pino-http` middleware with correlation request IDs. |
+
+---
+
+## 3. Decisions Required from External Reviewer
+
+Before beginning Phase P1 implementation, the external reviewer should confirm:
+1. **Approval of the 5-slot monorepo checkpoint model** as the replacement for the legacy 4-separate-repositories model.
+2. **Approval of SQLite (Slots 1–4) -> PostgreSQL (Slot 5)** dual-database evolution via Prisma.
+3. **Approval of Playwright MCP** as the primary Slot 3 live demo tool.
+4. **Acceptance of the proposed feature specifications** listed above (priority, due dates, ownership auth, pagination, health, and structured logging).
