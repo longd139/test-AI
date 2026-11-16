@@ -76,12 +76,14 @@ if (Test-Path -LiteralPath $redPath) { throw "Refusing existing path: $redPath" 
 git worktree add --detach $redPath checkpoint/slot-02-whitespace-red
 Set-Location -LiteralPath $redPath
 npm ci
+npm run build --workspace @course4/shared
+npm test --workspace @course4/api
 npm test -- --run
 ```
 
 ### Expected RED evidence
 
-The acceptance test for `POST /api/tasks` fails because whitespace becomes an empty string after the minimum-length check. The test also proves the database row count must not change.
+The shared tests fail because whitespace becomes an empty string after the minimum-length check. The API regression reports HTTP 201 and a row delta of 1 instead of HTTP 400 and a row delta of 0.
 
 Show the root cause in the shared Zod chain. Apply the minimal fix by trimming before checking the minimum length, without editing the test. Then run:
 
