@@ -3,10 +3,12 @@ import { Task } from '@course4/shared';
 import { fetchTasks, createTask, updateTask, deleteTask } from './api/client.js';
 import { TaskForm } from './components/TaskForm.js';
 import { TaskList } from './components/TaskList.js';
+import { TaskFilterBar, FilterStatus } from './components/TaskFilterBar.js';
 import { CheckSquare, AlertCircle, RefreshCw } from 'lucide-react';
 
 export function App() {
   const [tasks, setTasks] = useState<Task[]>([]);
+  const [filter, setFilter] = useState<FilterStatus>('all');
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -103,6 +105,19 @@ export function App() {
         {/* Task Form */}
         <TaskForm onAddTask={handleAddTask} isLoading={actionLoading} />
 
+        {/* Task Filter Navigation (Option B) */}
+        {!loading && tasks.length > 0 && (
+          <TaskFilterBar
+            currentFilter={filter}
+            onFilterChange={setFilter}
+            counts={{
+              all: tasks.length,
+              active: tasks.filter((t) => !t.completed).length,
+              completed: tasks.filter((t) => t.completed).length,
+            }}
+          />
+        )}
+
         {/* Task List */}
         {loading ? (
           <div className="text-center py-12 text-slate-400 flex items-center justify-center gap-2">
@@ -111,7 +126,14 @@ export function App() {
           </div>
         ) : (
           <TaskList
-            tasks={tasks}
+            tasks={tasks.filter((t) => {
+              if (filter === 'active') return !t.completed;
+              if (filter === 'completed') return t.completed;
+              return true;
+            })}
+            totalCount={tasks.length}
+            completedCount={tasks.filter((t) => t.completed).length}
+            activeFilter={filter}
             onToggleComplete={handleToggleComplete}
             onEditTitle={handleEditTitle}
             onDelete={handleDelete}

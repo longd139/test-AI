@@ -69,4 +69,54 @@ describe('Task Manager Frontend App', () => {
     fireEvent.change(input, { target: { value: '   ' } });
     expect(submitBtn).toBeDisabled();
   });
+
+  it('filters tasks by active and completed status when filter tabs are clicked', async () => {
+    vi.mocked(client.fetchTasks).mockResolvedValueOnce([
+      {
+        id: '123e4567-e89b-12d3-a456-426614174000',
+        title: 'Active Task 1',
+        completed: false,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      },
+      {
+        id: '123e4567-e89b-12d3-a456-426614174001',
+        title: 'Completed Task 2',
+        completed: true,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      },
+    ]);
+
+    render(<App />);
+
+    await waitFor(() => {
+      expect(screen.getByText('Active Task 1')).toBeInTheDocument();
+      expect(screen.getByText('Completed Task 2')).toBeInTheDocument();
+    });
+
+    // Click Active filter tab
+    const activeTab = screen.getByRole('tab', { name: /active/i });
+    fireEvent.click(activeTab);
+
+    expect(screen.getByText('Active Task 1')).toBeInTheDocument();
+    expect(screen.queryByText('Completed Task 2')).not.toBeInTheDocument();
+    expect(activeTab).toHaveAttribute('aria-selected', 'true');
+
+    // Click Completed filter tab
+    const completedTab = screen.getByRole('tab', { name: /completed/i });
+    fireEvent.click(completedTab);
+
+    expect(screen.queryByText('Active Task 1')).not.toBeInTheDocument();
+    expect(screen.getByText('Completed Task 2')).toBeInTheDocument();
+    expect(completedTab).toHaveAttribute('aria-selected', 'true');
+
+    // Click All filter tab
+    const allTab = screen.getByRole('tab', { name: /^all/i });
+    fireEvent.click(allTab);
+
+    expect(screen.getByText('Active Task 1')).toBeInTheDocument();
+    expect(screen.getByText('Completed Task 2')).toBeInTheDocument();
+    expect(allTab).toHaveAttribute('aria-selected', 'true');
+  });
 });
