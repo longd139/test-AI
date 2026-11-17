@@ -75,4 +75,34 @@ describe('UpdateTaskSchema', () => {
       expect(result.error.issues[0].message).toContain('At least one field');
     }
   });
+
+  it('accepts valid priority in CreateTaskSchema (LOW, MEDIUM, HIGH)', () => {
+    const low = CreateTaskSchema.safeParse({ title: 'Low priority task', priority: 'LOW' });
+    const med = CreateTaskSchema.safeParse({ title: 'Medium priority task', priority: 'MEDIUM' });
+    const high = CreateTaskSchema.safeParse({ title: 'High priority task', priority: 'HIGH' });
+    expect(low.success).toBe(true);
+    expect(med.success).toBe(true);
+    expect(high.success).toBe(true);
+  });
+
+  it('defaults priority to MEDIUM when omitted', () => {
+    const result = CreateTaskSchema.safeParse({ title: 'Standard task' });
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.priority).toBe('MEDIUM');
+    }
+  });
+
+  it('rejects invalid priority value', () => {
+    const result = CreateTaskSchema.safeParse({ title: 'Invalid task', priority: 'CRITICAL' });
+    expect(result.success).toBe(false);
+  });
+
+  it('accepts priority update in UpdateTaskSchema', () => {
+    const result = UpdateTaskSchema.safeParse({ priority: 'HIGH' });
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.priority).toBe('HIGH');
+    }
+  });
 });

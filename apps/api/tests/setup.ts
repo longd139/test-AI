@@ -20,10 +20,16 @@ try {
       "id" TEXT NOT NULL PRIMARY KEY,
       "title" TEXT NOT NULL,
       "completed" BOOLEAN NOT NULL DEFAULT false,
+      "priority" TEXT NOT NULL DEFAULT 'MEDIUM',
       "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
       "updatedAt" DATETIME NOT NULL
     )
   `);
+  try {
+    await bootstrapPrisma.$executeRawUnsafe(`ALTER TABLE "Task" ADD COLUMN "priority" TEXT NOT NULL DEFAULT 'MEDIUM'`);
+  } catch {
+    // Column already exists, ignore
+  }
 } catch (err) {
   console.error('Failed to initialize test SQLite database:', err);
   throw err;

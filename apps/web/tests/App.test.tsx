@@ -32,6 +32,7 @@ describe('Task Manager Frontend App', () => {
         id: '123e4567-e89b-12d3-a456-426614174000',
         title: 'Review PRD v1 draft',
         completed: false,
+        priority: 'HIGH',
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       },
@@ -39,6 +40,7 @@ describe('Task Manager Frontend App', () => {
         id: '123e4567-e89b-12d3-a456-426614174001',
         title: 'Run test suite',
         completed: true,
+        priority: 'LOW',
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       },
@@ -49,6 +51,8 @@ describe('Task Manager Frontend App', () => {
     await waitFor(() => {
       expect(screen.getByText('Review PRD v1 draft')).toBeInTheDocument();
       expect(screen.getByText('Run test suite')).toBeInTheDocument();
+      expect(screen.getByText('HIGH')).toBeInTheDocument();
+      expect(screen.getByText('LOW')).toBeInTheDocument();
       expect(screen.getByText('1 of 2 completed')).toBeInTheDocument();
     });
   });

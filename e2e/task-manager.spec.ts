@@ -37,3 +37,15 @@ test('keeps the title acceptance criteria visible in the browser', async ({ page
   await titleInput.fill('Controlled change');
   await expect(page.getByText('17/120')).toBeVisible();
 });
+
+test('creates a high-priority task and displays priority badge', async ({ page }) => {
+  const title = `Urgent task ${Date.now()}`;
+
+  await page.goto('/');
+  await page.getByRole('textbox', { name: 'New task title' }).fill(title);
+  await page.getByRole('combobox', { name: 'Task priority' }).selectOption('HIGH');
+  await page.getByRole('button', { name: 'Add Task' }).click();
+
+  await expect(page.getByText(title)).toBeVisible();
+  await expect(page.locator('span', { hasText: 'HIGH' })).toBeVisible();
+});

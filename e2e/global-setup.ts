@@ -18,10 +18,16 @@ export async function prepareE2eDatabase() {
         "id" TEXT NOT NULL PRIMARY KEY,
         "title" TEXT NOT NULL,
         "completed" BOOLEAN NOT NULL DEFAULT false,
+        "priority" TEXT NOT NULL DEFAULT 'MEDIUM',
         "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
         "updatedAt" DATETIME NOT NULL
       )
     `);
+    try {
+      await prisma.$executeRawUnsafe(`ALTER TABLE "Task" ADD COLUMN "priority" TEXT NOT NULL DEFAULT 'MEDIUM'`);
+    } catch {
+      // Column already exists, ignore
+    }
     await prisma.task.deleteMany({});
   } finally {
     await prisma.$disconnect();

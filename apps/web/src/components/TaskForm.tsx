@@ -1,14 +1,15 @@
 import React, { useState } from 'react';
 import { PlusCircle } from 'lucide-react';
-import { TASK_TITLE_MAX_LENGTH } from '@course4/shared';
+import { TASK_TITLE_MAX_LENGTH, TaskPriority } from '@course4/shared';
 
 interface TaskFormProps {
-  onAddTask: (title: string) => Promise<void>;
+  onAddTask: (title: string, priority?: TaskPriority) => Promise<void>;
   isLoading: boolean;
 }
 
 export const TaskForm: React.FC<TaskFormProps> = ({ onAddTask, isLoading }) => {
   const [title, setTitle] = useState('');
+  const [priority, setPriority] = useState<TaskPriority>('MEDIUM');
   const [validationError, setValidationError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -22,8 +23,9 @@ export const TaskForm: React.FC<TaskFormProps> = ({ onAddTask, isLoading }) => {
 
     setValidationError(null);
     try {
-      await onAddTask(trimmed);
+      await onAddTask(trimmed, priority);
       setTitle('');
+      setPriority('MEDIUM');
     } catch (err) {
       setValidationError(err instanceof Error ? err.message : 'Failed to add task');
     }
@@ -45,6 +47,17 @@ export const TaskForm: React.FC<TaskFormProps> = ({ onAddTask, isLoading }) => {
           aria-label="New task title"
           maxLength={TASK_TITLE_MAX_LENGTH}
         />
+        <select
+          value={priority}
+          onChange={(e) => setPriority(e.target.value as TaskPriority)}
+          disabled={isLoading}
+          className="px-3 py-2 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-slate-700 text-sm font-medium disabled:bg-slate-100"
+          aria-label="Task priority"
+        >
+          <option value="LOW">Low</option>
+          <option value="MEDIUM">Medium</option>
+          <option value="HIGH">High</option>
+        </select>
         <button
           type="submit"
           disabled={isLoading || !title.trim()}

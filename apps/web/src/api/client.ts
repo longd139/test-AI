@@ -1,4 +1,4 @@
-import { Task } from '@course4/shared';
+import { Task, TaskPriority } from '@course4/shared';
 
 const API_BASE = '/api';
 
@@ -11,11 +11,11 @@ export async function fetchTasks(): Promise<Task[]> {
   return res.json();
 }
 
-export async function createTask(title: string): Promise<Task> {
+export async function createTask(title: string, priority: TaskPriority = 'MEDIUM'): Promise<Task> {
   const res = await fetch(`${API_BASE}/tasks`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ title }),
+    body: JSON.stringify({ title, priority }),
   });
   if (!res.ok) {
     const errorData = await res.json().catch(() => ({}));
@@ -26,7 +26,7 @@ export async function createTask(title: string): Promise<Task> {
 
 export async function updateTask(
   id: string,
-  updates: { title?: string; completed?: boolean }
+  updates: { title?: string; completed?: boolean; priority?: TaskPriority }
 ): Promise<Task> {
   const res = await fetch(`${API_BASE}/tasks/${id}`, {
     method: 'PATCH',

@@ -141,6 +141,23 @@ describe('Task Manager API Integration Tests', () => {
       expect(res.status).toBe(400);
     });
 
+    it('creates a new task with explicit priority (HIGH)', async () => {
+      const res = await request(app)
+        .post('/api/tasks')
+        .send({ title: 'Critical Bugfix', priority: 'HIGH' });
+      expect(res.status).toBe(201);
+      expect(res.body.title).toBe('Critical Bugfix');
+      expect(res.body.priority).toBe('HIGH');
+    });
+
+    it('defaults task priority to MEDIUM when omitted', async () => {
+      const res = await request(app)
+        .post('/api/tasks')
+        .send({ title: 'Normal task without priority' });
+      expect(res.status).toBe(201);
+      expect(res.body.priority).toBe('MEDIUM');
+    });
+
     it('rejects titles longer than 120 characters with 400 Bad Request', async () => {
       const res = await request(app).post('/api/tasks').send({ title: 'x'.repeat(121) });
       expect(res.status).toBe(400);
@@ -180,6 +197,17 @@ describe('Task Manager API Integration Tests', () => {
         .send({ completed: false });
       expect(res.status).toBe(200);
       expect(res.body.completed).toBe(false);
+    });
+
+    it('updates task priority level', async () => {
+      const tasks = await prisma.task.findMany({});
+      const target = tasks[0];
+
+      const res = await request(app)
+        .patch(`/api/tasks/${target.id}`)
+        .send({ priority: 'LOW' });
+      expect(res.status).toBe(200);
+      expect(res.body.priority).toBe('LOW');
     });
 
     it('rejects whitespace-only title on update with 400 Bad Request', async () => {

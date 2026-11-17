@@ -9,6 +9,12 @@ interface TaskItemProps {
   onDelete: (id: string) => Promise<void>;
 }
 
+const priorityColors: Record<string, string> = {
+  HIGH: 'bg-red-100 text-red-700 border-red-200',
+  MEDIUM: 'bg-amber-100 text-amber-700 border-amber-200',
+  LOW: 'bg-blue-100 text-blue-700 border-blue-200',
+};
+
 export const TaskItem: React.FC<TaskItemProps> = ({
   task,
   onToggleComplete,
@@ -79,13 +85,23 @@ export const TaskItem: React.FC<TaskItemProps> = ({
               </button>
             </div>
           ) : (
-            <span
-              className={`text-slate-800 break-words flex-1 ${
-                task.completed ? 'line-through text-slate-400' : ''
-              }`}
-            >
-              {task.title}
-            </span>
+            <div className="flex items-center gap-2 flex-1 min-w-0">
+              <span
+                className={`text-slate-800 break-words flex-1 ${
+                  task.completed ? 'line-through text-slate-400' : ''
+                }`}
+              >
+                {task.title}
+              </span>
+              <span
+                data-testid={`task-priority-${task.id}`}
+                className={`text-[10px] uppercase tracking-wide font-bold px-2 py-0.5 rounded-full border shrink-0 ${
+                  priorityColors[task.priority || 'MEDIUM'] || priorityColors.MEDIUM
+                }`}
+              >
+                {task.priority || 'MEDIUM'}
+              </span>
+            </div>
           )}
         </div>
 

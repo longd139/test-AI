@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Task } from '@course4/shared';
+import { Task, TaskPriority } from '@course4/shared';
 import { fetchTasks, createTask, updateTask, deleteTask } from './api/client.js';
 import { TaskForm } from './components/TaskForm.js';
 import { TaskList } from './components/TaskList.js';
@@ -28,10 +28,10 @@ export function App() {
     loadTasks();
   }, []);
 
-  const handleAddTask = async (title: string) => {
+  const handleAddTask = async (title: string, priority?: TaskPriority) => {
     try {
       setActionLoading(true);
-      const newTask = await createTask(title);
+      const newTask = await createTask(title, priority);
       setTasks((prev) => [newTask, ...prev]);
     } finally {
       setActionLoading(false);

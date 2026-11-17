@@ -69,6 +69,7 @@ app.post('/api/tasks', async (req, res) => {
     const newTask = await prisma.task.create({
       data: {
         title: parseResult.data.title,
+        priority: parseResult.data.priority ?? 'MEDIUM',
       },
     });
     res.status(201).json(newTask);
