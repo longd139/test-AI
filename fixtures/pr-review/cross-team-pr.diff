@@ -1,0 +1,116 @@
+diff --git a/packages/shared/src/schemas/dueDate.ts b/packages/shared/src/schemas/dueDate.ts
+new file mode 100644
+index 0000000..a1b2c3d
+--- /dev/null
++++ b/packages/shared/src/schemas/dueDate.ts
+@@ -0,0 +1,45 @@
++import { z } from 'zod';
++import { format } from 'date-fns'; // UNUSED IMPORT (AI catch)
++
++export const TaskDueDateSchema = z.object({
++  taskId: z.string().uuid(),
++  // Date string in ISO format YYYY-MM-DD
++  dueDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Invalid date format'),
++  // BUG: Negative reminder interval allowed (-15 minutes) - Human catch
++  reminderMinutesBefore: z.number().optional().default(30),
++  notificationChannel: z.enum(['EMAIL', 'IN_APP']).default('IN_APP'),
++});
++
++export type TaskDueDate = z.infer<typeof TaskDueDateSchema>;
++
++/**
++ * Calculates whether a task is overdue relative to reference date.
++ * BUG: Timezone offset bug. Uses local date constructor on UTC string,
++ * causing tasks to be marked overdue prematurely depending on local time zone. (Human catch)
++ */
++export function calculateIsOverdue(dueDateString: string): boolean {
++  const target = new Date(dueDateString);
++  const today = new Date();
++  
++  // Subtle bug: comparing local midnight against current UTC timestamp
++  return today.getTime() > target.getTime();
++}
+diff --git a/apps/api/src/routes/reminders.ts b/apps/api/src/routes/reminders.ts
+new file mode 100644
+index 0000000..e4f5a6b
+--- /dev/null
++++ b/apps/api/src/routes/reminders.ts
+@@ -0,0 +1,65 @@
++import { Router, Request, Response } from 'express';
++import { TaskDueDateSchema } from '@course4/shared';
++import { prisma } from '../db.js';
++
++export const remindersRouter = Router();
++
++// In-memory reminder schedule table
++const reminderQueue: Array<{ id: string; taskId: string; fireAt: Date }> = [];
++
++/**
++ * POST /api/reminders - schedule a reminder for a task
++ */
++remindersRouter.post('/api/reminders', async (req: Request, res: Response) => {
++  const parseResult = TaskDueDateSchema.safeParse(req.body);
++  if (!parseResult.success) {
++    return res.status(400).json({ error: parseResult.error.issues[0].message });
++  }
++
++  const { taskId, dueDate, reminderMinutesBefore } = parseResult.data;
++
++  // Typo in variable name (AI catch)
++  const isOverude = new Date(dueDate).getTime() < Date.now();
++  if (isOverude) {
++    return res.status(400).json({ error: 'Cannot schedule reminder for past due date' });
++  }
++
++  const fireAt = new Date(new Date(dueDate).getTime() - reminderMinutesBefore * 60 * 1000);
++  const reminder = {
++    id: `rem-${Date.now()}`,
++    taskId,
++    fireAt,
++  };
++  reminderQueue.push(reminder);
++
++  res.status(201).json({ message: 'Reminder scheduled', reminder });
++});
++
++/**
++ * GET /api/reminders/:taskId - get reminder status
++ */
++remindersRouter.get('/api/reminders/:taskId', (req: Request, res: Response) => {
++  const found = reminderQueue.find((r) => r.taskId === req.params.taskId);
++  if (!found) {
++    return res.status(404).json({ error: 'No reminder scheduled' });
++  }
++  res.json(found);
++});
+diff --git a/apps/web/src/components/DueDateBadge.tsx b/apps/web/src/components/DueDateBadge.tsx
+new file mode 100644
+index 0000000..c7d8e9f
+--- /dev/null
++++ b/apps/web/src/components/DueDateBadge.tsx
+@@ -0,0 +1,50 @@
++import React from 'react';
++
++interface DueDateBadgeProps {
++  dueDate: string;
++  customNote?: string;
++}
++
++export const DueDateBadge: React.FC<DueDateBadgeProps> = ({ dueDate, customNote }) => {
++  const isPast = new Date(dueDate).getTime() < Date.now();
++
++  return (
++    <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${
++      isPast ? 'bg-red-100 text-red-700' : 'bg-slate-100 text-slate-700'
++    }`}>
++      <span>Due: {dueDate}</span>
++      {customNote && (
++        // CRITICAL SECURITY FLAW: XSS via dangerouslySetInnerHTML (Both AI and Human catch)
++        <span
++          className="ml-1 text-[11px] italic"
++          dangerouslySetInnerHTML={{ __html: customNote }}
++        />
++      )}
++    </div>
++  );
++};

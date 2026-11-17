@@ -2,12 +2,24 @@ import express from 'express';
 import cors from 'cors';
 import { CreateTaskSchema, UpdateTaskSchema } from '@course4/shared';
 import { prisma } from './db.js';
+import { createSimulatedOwnershipRouter } from './fixtures/simulated-ownership.js';
 
 export const app = express();
 
 app.use(cors());
 // Bound request parsing before validation to reduce oversized-input resource exhaustion.
 app.use(express.json({ limit: '16kb' }));
+
+// Strip simulated identity headers if running in production
+if (process.env.NODE_ENV === 'production') {
+  app.use((req, _res, next) => {
+    delete req.headers['x-user-id'];
+    next();
+  });
+} else {
+  // Mount isolated Slot 4 training fixtures in development/test only
+  app.use('/api/training', createSimulatedOwnershipRouter());
+}
 
 // Health check endpoint (Sanitized response with HTTP 503 on failure)
 app.get('/health', async (_req, res) => {

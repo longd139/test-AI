@@ -1,0 +1,44 @@
+rules:
+  - id: ai-missing-ownership-check
+    languages: [typescript, javascript]
+    severity: WARNING
+    message: "Potential IDOR / Missing Object-Level Authorization: Task lookup or deletion by ID does not verify user ownership."
+    pattern-either:
+      - pattern: prisma.task.delete({ where: { id: $ID } })
+      - pattern: prisma.task.update({ where: { id: $ID }, data: $DATA })
+    paths:
+      include:
+        - "apps/api/src/fixtures/**"
+        - "apps/api/src/routes/**"
+
+  - id: ai-raw-exception-leak
+    languages: [typescript, javascript]
+    severity: ERROR
+    message: "Information Disclosure: Returning raw exception details in HTTP response leaks internal driver or filesystem paths."
+    pattern-either:
+      - pattern: res.status(500).json({ error: String($ERR) })
+      - pattern: res.status(503).json({ error: String($ERR) })
+      - pattern: res.status(500).json({ ..., error: $ERR.message, ... })
+      - pattern: res.status(503).json({ ..., error: $ERR.message, ... })
+
+  - id: ai-unbounded-zod-string
+    languages: [typescript, javascript]
+    severity: WARNING
+    message: "Permissive Input Validation: String field does not enforce maximum length bounds, risking denial of service."
+    pattern: z.string().min(1)
+    paths:
+      include:
+        - "packages/shared/**"
+        - "apps/api/**"
+
+  - id: ai-dangerously-set-inner-html
+    languages: [typescript, javascript]
+    severity: ERROR
+    message: "Cross-Site Scripting (XSS): Using dangerouslySetInnerHTML allows unescaped HTML injection."
+    pattern: dangerouslySetInnerHTML={{ __html: $HTML }}
+
+  - id: ai-hardcoded-secret
+    languages: [typescript, javascript]
+    severity: ERROR
+    message: "Hardcoded Secret: Found hardcoded token or secret string. Use environment variables instead."
+    pattern-regex: '(?i)(jwt_secret|api_key|private_key)\s*[:=]\s*["''][a-zA-Z0-9_\-]{16,}["'']'
