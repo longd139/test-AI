@@ -89,7 +89,7 @@ export function createSimulatedOwnershipRouter(): Router {
   // VULNERABLE ENDPOINT: Missing Ownership Check (IDOR)
   // Deletes task solely by taskId without verifying caller is owner
   router.delete('/vulnerable/tasks/:id', (req: Request, res: Response) => {
-    const { id } = req.params;
+    const id = String(req.params.id);
     const task = simulatedTasksStore.get(id);
 
     if (!task) {
@@ -104,7 +104,7 @@ export function createSimulatedOwnershipRouter(): Router {
   // SECURE ENDPOINT: Strict Ownership Check Remediated
   // Verifies that the task exists AND belongs to the calling user
   router.delete('/secure/tasks/:id', (req: Request, res: Response) => {
-    const { id } = req.params;
+    const id = String(req.params.id);
     const callerId = getCallerId(req);
     const task = simulatedTasksStore.get(id);
 
